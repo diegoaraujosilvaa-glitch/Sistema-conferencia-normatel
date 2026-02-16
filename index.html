@@ -5,21 +5,211 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>CheckMaster XML - Conferência Cega</title>
     <script type="importmap">
-{
-  "imports": {
-    "recharts": "https://esm.sh/recharts@^3.7.0",
-    "lucide-react": "https://esm.sh/lucide-react@^0.564.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react": "https://esm.sh/react@^19.2.4",
-    "jspdf": "https://esm.sh/jspdf@2.5.1",
-    "jspdf-autotable": "https://esm.sh/jspdf-autotable@3.8.2",
-    "vite": "https://esm.sh/vite@^7.3.1",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.4"
-  }
-}
-</script>
+    {
+      "imports": {
+        "recharts": "https://esm.sh/recharts@^3.7.0",
+        "lucide-react": "https://esm.sh/lucide-react@^0.564.0",
+        "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+        "react/": "https://esm.sh/react@^19.2.4/",
+        "react": "https://esm.sh/react@^19.2.4",
+        "jspdf": "https://esm.sh/jspdf@2.5.1",
+        "jspdf-autotable": "https://esm.sh/jspdf-autotable@3.8.2"
+      }
+    }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      /* --- Estilos Base --- */
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f8fafc;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      * {
+        box-sizing: inherit;
+      }
+
+      /* Custom Scrollbar */
+      .report-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .report-scrollbar::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+      .report-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+
+      /* --- Responsividade de Tabelas --- */
+      .overflow-x-auto {
+        width: 100%;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        display: block;
+      }
+      
+      table {
+        min-width: 800px; /* Garante legibilidade mínima em tabelas densas */
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      /* --- Media Queries Modernas --- */
+
+      /* TABLETS (Até 1024px) */
+      @media (max-width: 1024px) {
+        aside.w-64 {
+          width: 80px !important;
+        }
+        aside.w-64 span {
+          display: none !important; /* Esconde labels para economizar espaço */
+        }
+        aside.w-64 .p-6, aside.w-64 .p-4 {
+          padding: 1rem !important;
+        }
+        aside.w-64 nav {
+          padding: 0.5rem !important;
+        }
+        aside.w-64 button {
+          justify-content: center !important;
+        }
+        aside.w-64 .bg-slate-800\/30 {
+          display: none !important;
+        }
+        
+        .grid-cols-4 {
+          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+      }
+
+      /* MOBILE (Até 768px) */
+      @media (max-width: 768px) {
+        /* Reestruturação do Layout Principal */
+        #root > div.flex {
+          flex-direction: column !important;
+          height: auto !important;
+          overflow: visible !important;
+        }
+
+        /* Sidebar adaptada como Header Horizontal no Mobile */
+        aside.w-64 {
+          width: 100% !important;
+          height: auto !important;
+          display: flex !important;
+          flex-direction: row !important;
+          overflow-x: auto !important;
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          padding: 0.5rem !important;
+          border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        aside.w-64 .border-b, aside.w-64 .border-t, aside.w-64 .p-6 {
+          display: none !important;
+        }
+
+        aside.w-64 nav {
+          display: flex !important;
+          flex-direction: row !important;
+          margin-top: 0 !important;
+          padding: 0 !important;
+          gap: 0.5rem;
+        }
+
+        aside.w-64 nav button {
+          width: auto !important;
+          padding: 0.5rem 1rem !important;
+          white-space: nowrap;
+        }
+
+        aside.w-64 nav button span {
+          display: block !important;
+          font-size: 9px !important;
+        }
+
+        /* Conteúdo Principal */
+        main {
+          width: 100% !important;
+          height: auto !important;
+          overflow: visible !important;
+        }
+
+        header.h-16 {
+          display: none !important; /* Ganhar espaço vertical no mobile */
+        }
+
+        .p-8, .p-10 {
+          padding: 1.25rem !important;
+        }
+
+        /* Grids para Mobile (Coluna única) */
+        .grid-cols-2, .grid-cols-3, .grid-cols-4, .lg\:grid-cols-12, .lg\:grid-cols-3 {
+          grid-template-columns: 1fr !important;
+          display: grid !important;
+        }
+
+        .lg\:col-span-4, .lg\:col-span-8, .lg\:col-span-12 {
+          grid-column: span 1 / span 1 !important;
+        }
+
+        /* Botões Full Width no Mobile */
+        .p-10 button, .p-8 button, .p-12 button, form button {
+          width: 100% !important;
+          max-width: none !important;
+          margin-bottom: 0.5rem;
+          justify-content: center !important;
+        }
+
+        /* Preservar botões pequenos de ação */
+        table button {
+          width: auto !important;
+          margin-bottom: 0 !important;
+        }
+
+        /* Inputs Full Width */
+        input, select, textarea {
+          width: 100% !important;
+          font-size: 16px !important; /* Evita zoom automático no iOS */
+        }
+
+        /* Dashboard Charts Ajuste de Altura */
+        .h-\[350px\] {
+          height: 280px !important;
+        }
+
+        /* BlindCheck: Terminal acima da lista */
+        #root .lg\:col-span-4 {
+          order: 1;
+        }
+        #root .lg\:col-span-8 {
+          order: 2;
+        }
+
+        /* Modais */
+        .max-w-2xl, .max-w-4xl, .max-w-md {
+          width: 95% !important;
+          margin-left: auto !important;
+          margin-right: auto !important;
+        }
+      }
+
+      /* --- Impressão --- */
+      @media print {
+        @page {
+          margin: 1.5cm !important;
+          size: A4 portrait;
+        }
+        body > *:not(#root) { display: none !important; }
+        .no-print { display: none !important; }
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
