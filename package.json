@@ -1,5 +1,5 @@
 {
-  "name": "checkmaster-xml---conferência-cega-nf-e",
+  "name": "sistema-normatel-conferência-cega-nf-e",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -14,7 +14,9 @@
     "react-dom": "^19.2.4",
     "react": "^19.2.4",
     "jspdf": "2.5.1",
-    "jspdf-autotable": "3.8.2"
+    "jspdf-autotable": "3.8.2",
+    "vite": "^7.3.1",
+    "@vitejs/plugin-react": "^5.1.4"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

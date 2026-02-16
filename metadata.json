@@ -1,5 +1,5 @@
 {
-  "name": "CheckMaster XML - Conferência Cega NF-e",
+  "name": "Sistema normatel Conferência Cega NF-e",
   "description": "Sistema profissional para conferência cega de mercadorias através da importação de múltiplos arquivos XML de NF-e, com controle de acesso, validação de supervisor e dashboards operacionais.",
   "requestFramePermissions": []
 }
