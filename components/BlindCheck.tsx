@@ -114,7 +114,7 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
         
         {/* Painel de Comando (Esquerda) */}
         <div className="lg:col-span-4 flex flex-col gap-8">
-          <div className="bg-slate-900 text-white p-10 rounded-[48px] shadow-2xl relative overflow-hidden group border border-slate-800">
+          <div className="bg-slate-900 text-white p-10 rounded-xl shadow-2xl relative overflow-hidden group border border-slate-800">
             <div className="absolute top-0 right-0 p-10 opacity-5">
               <Zap size={150} />
             </div>
@@ -132,7 +132,7 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
                     type="text"
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
-                    className="w-full bg-slate-800 border-2 border-slate-700 rounded-[28px] py-6 pl-16 pr-6 font-mono text-2xl focus:outline-none focus:border-[#E66B27] focus:ring-8 focus:ring-orange-500/10 transition-all text-white placeholder-slate-600"
+                    className="w-full bg-slate-800 border-2 border-slate-700 rounded-md py-6 pl-16 pr-6 font-mono text-2xl focus:outline-none focus:border-[#E66B27] focus:ring-8 focus:ring-orange-500/10 transition-all text-white placeholder-slate-600"
                     placeholder="Bipar item..."
                     autoComplete="off"
                   />
@@ -149,13 +149,13 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
                     step="0.001"
                     value={manualQty}
                     onChange={(e) => setManualQty(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-slate-800 border-2 border-slate-700 rounded-[28px] py-5 px-6 font-black text-2xl text-center focus:outline-none focus:border-[#E66B27] text-white"
+                    className="w-full bg-slate-800 border-2 border-slate-700 rounded-md py-5 px-6 font-black text-2xl text-center focus:outline-none focus:border-[#E66B27] text-white"
                   />
                 </div>
                 <div className="flex-1 flex items-end">
                   <button 
                     type="submit"
-                    className="w-full bg-[#E66B27] hover:bg-[#d55a1a] text-white py-5 rounded-[28px] font-black uppercase tracking-[0.2em] text-[11px] transition-all shadow-2xl shadow-orange-500/20 flex items-center justify-center gap-3 transform active:scale-95"
+                    className="w-full bg-[#E66B27] hover:bg-[#d55a1a] text-white py-5 rounded-md font-black uppercase tracking-[0.2em] text-[11px] transition-all shadow-2xl shadow-orange-500/20 flex items-center justify-center gap-3 transform active:scale-95"
                   >
                     Confirmar <ArrowRight size={20} />
                   </button>
@@ -164,7 +164,7 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
             </form>
 
             {errorMsg && (
-              <div className="mt-8 p-5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-3xl flex items-center gap-4 animate-bounce">
+              <div className="mt-8 p-5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-md flex items-center gap-4 animate-bounce">
                 <AlertTriangle size={24} className="shrink-0" />
                 <span className="font-black text-[10px] uppercase tracking-widest">{errorMsg}</span>
               </div>
@@ -172,7 +172,7 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
           </div>
 
           {/* Status Real-time do Lote */}
-          <div className="bg-white p-10 rounded-[48px] shadow-sm border border-slate-100 relative overflow-hidden group">
+          <div className="bg-white p-10 rounded-xl shadow-sm border border-slate-100 relative overflow-hidden group">
              <div className="absolute top-0 left-0 w-1.5 h-full bg-[#E66B27] group-hover:w-2 transition-all"></div>
             <div className="flex justify-between items-end mb-6">
               <div>
@@ -193,13 +193,13 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
           </div>
 
           {/* Histórico Local */}
-          <div className="flex-1 bg-white p-8 rounded-[48px] border border-slate-100 shadow-sm flex flex-col">
+          <div className="flex-1 bg-white p-8 rounded-xl border border-slate-100 shadow-sm flex flex-col">
             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-3">
               <History size={16} className="text-[#E66B27]" /> Últimas Leituras
             </h4>
             <div className="space-y-4 overflow-y-auto max-h-[300px] pr-2 report-scrollbar">
               {scanHistory.map((item, idx) => (
-                <div key={idx} className={`p-5 rounded-3xl bg-slate-50 border border-slate-100 shadow-sm flex justify-between items-center animate-in slide-in-from-left-4 duration-500 opacity-${100 - (idx * 20)}`}>
+                <div key={idx} className={`p-5 rounded-md bg-slate-50 border border-slate-100 shadow-sm flex justify-between items-center animate-in slide-in-from-left-4 duration-500 opacity-${100 - (idx * 20)}`}>
                   <div className="max-w-[75%]">
                     <p className="text-[10px] font-black text-slate-800 uppercase truncate leading-none">{item.description}</p>
                     <p className="text-[9px] text-slate-400 font-bold uppercase mt-1.5 tracking-widest">{item.ean}</p>
@@ -234,13 +234,13 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
             <div className="flex items-center gap-3">
                <button 
                 onClick={onPause}
-                className="bg-white border-2 border-slate-100 hover:border-[#E66B27] hover:text-[#E66B27] text-slate-500 px-4 py-2.5 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all flex items-center gap-2 shadow-sm"
+                className="bg-white border-2 border-slate-100 hover:border-[#E66B27] hover:text-[#E66B27] text-slate-500 px-4 py-2.5 rounded-md font-black text-[9px] uppercase tracking-widest transition-all flex items-center gap-2 shadow-sm"
               >
                 <Save size={14} /> Pausar
               </button>
               <button 
                 onClick={() => setShowDiscardConfirm(true)}
-                className="bg-red-50 hover:bg-red-100 text-red-500 px-4 py-2.5 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all flex items-center gap-2"
+                className="bg-red-50 hover:bg-red-100 text-red-500 px-4 py-2.5 rounded-md font-black text-[9px] uppercase tracking-widest transition-all flex items-center gap-2"
               >
                 <Trash2 size={14} /> Descartar
               </button>
@@ -268,14 +268,14 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
                         <p className="text-[9px] text-slate-400 font-mono mt-1 uppercase">COD: {p.code} <span className="mx-1.5 opacity-30">|</span> EAN: {p.ean}</p>
                       </td>
                       <td className="px-4 py-5 text-center">
-                        <span className="inline-block px-4 py-2 bg-orange-50 text-[#E66B27] rounded-xl font-black text-sm min-w-[5rem] border border-orange-100/50 shadow-inner">
+                        <span className="inline-block px-4 py-2 bg-orange-50 text-[#E66B27] rounded-md font-black text-sm min-w-[5rem] border border-orange-100/50 shadow-inner">
                           {formatNumber(p.quantityChecked)}
                         </span>
                       </td>
                       <td className="px-6 py-5 text-right">
                         <button 
                           onClick={() => removeItem(p.id)}
-                          className="p-2.5 bg-white hover:bg-red-50 text-slate-300 hover:text-red-500 rounded-xl transition-all inline-flex items-center justify-center border border-slate-100 hover:border-red-100 shadow-sm"
+                          className="p-2.5 bg-white hover:bg-red-50 text-slate-300 hover:text-red-500 rounded-md transition-all inline-flex items-center justify-center border border-slate-100 hover:border-red-100 shadow-sm"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -308,7 +308,7 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
             </div>
             <button 
               onClick={onFinish}
-              className="bg-[#E66B27] hover:bg-[#d55a1a] text-white px-8 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all shadow-xl shadow-orange-500/20 flex items-center gap-3 transform hover:scale-105 active:scale-95"
+              className="bg-[#E66B27] hover:bg-[#d55a1a] text-white px-8 py-4 rounded-md font-black uppercase tracking-[0.2em] text-[10px] transition-all shadow-xl shadow-orange-500/20 flex items-center gap-3 transform hover:scale-105 active:scale-95"
             >
               Finalizar Manifesto <CheckCircle size={18} />
             </button>
@@ -319,7 +319,7 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
       {/* Modal de Descarte */}
       {showDiscardConfirm && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-xl animate-in fade-in duration-300">
-          <div className="bg-white w-full max-w-md rounded-[56px] shadow-2xl p-12 animate-in zoom-in duration-300 text-center border border-white/10">
+          <div className="bg-white w-full max-w-md rounded-xl shadow-2xl p-12 animate-in zoom-in duration-300 text-center border border-white/10">
             <div className="bg-red-50 w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-10 text-red-500 shadow-inner">
               <AlertTriangle size={56} />
             </div>
@@ -331,13 +331,13 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
             <div className="flex flex-col gap-4">
               <button 
                 onClick={onCancel}
-                className="w-full bg-red-500 hover:bg-red-600 text-white py-6 rounded-[28px] font-black uppercase tracking-[0.2em] text-[10px] transition-all shadow-xl shadow-red-500/20"
+                className="w-full bg-red-500 hover:bg-red-600 text-white py-6 rounded-md font-black uppercase tracking-[0.2em] text-[10px] transition-all shadow-xl shadow-red-500/20"
               >
                 Sim, descartar tudo
               </button>
               <button 
                 onClick={() => setShowDiscardConfirm(false)}
-                className="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 py-6 rounded-[28px] font-black uppercase tracking-[0.2em] text-[10px] transition-all"
+                className="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 py-6 rounded-md font-black uppercase tracking-[0.2em] text-[10px] transition-all"
               >
                 Não, manter conferência
               </button>

@@ -39,7 +39,7 @@ const Layout: React.FC<LayoutProps> = ({ user, onLogout, activeTab, setActiveTab
       {/* Sidebar */}
       <aside className="w-64 bg-slate-900 text-white flex flex-col shadow-2xl z-20">
         <div className="p-6 flex flex-col items-center gap-1 border-b border-slate-800/50">
-          <div className="bg-[#E66B27] p-2 rounded-xl mb-2">
+          <div className="bg-[#E66B27] p-2 rounded mb-2">
             <PackageCheck className="text-white" size={28} />
           </div>
           <span className="font-black text-sm tracking-[0.2em] uppercase text-white">Normatel</span>
@@ -53,7 +53,7 @@ const Layout: React.FC<LayoutProps> = ({ user, onLogout, activeTab, setActiveTab
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-300 ${
+                className={`w-full flex items-center justify-between px-4 py-3.5 rounded transition-all duration-300 ${
                   activeTab === item.id 
                   ? 'bg-[#E66B27] text-white shadow-lg shadow-orange-500/20' 
                   : 'text-slate-400 hover:bg-slate-800 hover:text-white'
@@ -73,7 +73,7 @@ const Layout: React.FC<LayoutProps> = ({ user, onLogout, activeTab, setActiveTab
         </nav>
 
         <div className="p-4 border-t border-slate-800/50 bg-slate-900/50">
-          <div className="bg-slate-800/30 rounded-2xl p-4 mb-4 border border-slate-800/50">
+          <div className="bg-slate-800/30 rounded-md p-4 mb-4 border border-slate-800/50">
             <div className="flex items-center gap-2 mb-2">
               <Shield size={12} className={user.role === UserRole.CONFERENTE ? 'text-[#E66B27]' : 'text-orange-400'} />
               <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Acesso Autorizado</p>
@@ -83,7 +83,7 @@ const Layout: React.FC<LayoutProps> = ({ user, onLogout, activeTab, setActiveTab
           </div>
           <button 
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 text-red-400/80 hover:bg-red-500/10 rounded-xl transition-all hover:text-red-500"
+            className="w-full flex items-center gap-3 px-4 py-3 text-red-400/80 hover:bg-red-500/10 rounded transition-all hover:text-red-500"
           >
             <LogOut size={16} />
             <span className="font-black text-[10px] uppercase tracking-widest">Finalizar Sessão</span>

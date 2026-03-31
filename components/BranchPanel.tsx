@@ -42,7 +42,7 @@ const BranchPanel: React.FC<BranchPanelProps> = ({ branches, onAddBranch, onDele
         </div>
         <button 
           onClick={() => setShowAdd(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md font-bold transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20"
         >
           <Plus size={20} />
           Cadastrar Nova Filial
@@ -54,13 +54,13 @@ const BranchPanel: React.FC<BranchPanelProps> = ({ branches, onAddBranch, onDele
         <input 
           type="text"
           placeholder="Pesquisar por nome ou CNPJ..."
-          className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm transition-all"
+          className="w-full bg-white border border-slate-200 rounded-md py-4 pl-12 pr-4 focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm transition-all"
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
         />
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <div className="bg-white rounded-md shadow-sm border border-slate-100 overflow-hidden">
         <table className="w-full text-left">
           <thead className="bg-slate-50 border-b border-slate-100">
             <tr className="text-slate-400 text-[10px] font-black uppercase tracking-widest">
@@ -99,7 +99,7 @@ const BranchPanel: React.FC<BranchPanelProps> = ({ branches, onAddBranch, onDele
 
       {showAdd && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in duration-200">
+          <div className="bg-white w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-in zoom-in duration-200">
             <div className="p-6 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
               <h4 className="text-xl font-black text-slate-800 uppercase tracking-tight">Nova Filial</h4>
               <button onClick={() => setShowAdd(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
@@ -113,7 +113,7 @@ const BranchPanel: React.FC<BranchPanelProps> = ({ branches, onAddBranch, onDele
                   <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Nome da Filial</label>
                   <input 
                     required
-                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-medium"
+                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-medium"
                     placeholder="Ex: Filial AS"
                     value={newBranch.name}
                     onChange={e => setNewBranch({...newBranch, name: e.target.value})}
@@ -124,7 +124,7 @@ const BranchPanel: React.FC<BranchPanelProps> = ({ branches, onAddBranch, onDele
                   <input 
                     required
                     maxLength={14}
-                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-mono"
+                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-mono"
                     placeholder="00000000000000"
                     value={newBranch.cnpj}
                     onChange={e => setNewBranch({...newBranch, cnpj: e.target.value.replace(/\D/g, '')})}
@@ -133,8 +133,8 @@ const BranchPanel: React.FC<BranchPanelProps> = ({ branches, onAddBranch, onDele
               </div>
 
               <div className="pt-4 flex gap-3">
-                <button type="button" onClick={() => setShowAdd(false)} className="flex-1 px-6 py-4 rounded-2xl font-bold text-slate-500 hover:bg-slate-100 transition-all">Cancelar</button>
-                <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-2xl font-bold transition-all shadow-lg flex items-center justify-center gap-2"><Save size={18} /> Salvar Filial</button>
+                <button type="button" onClick={() => setShowAdd(false)} className="flex-1 px-6 py-4 rounded-md font-bold text-slate-500 hover:bg-slate-100 transition-all">Cancelar</button>
+                <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-md font-bold transition-all shadow-lg flex items-center justify-center gap-2"><Save size={18} /> Salvar Filial</button>
               </div>
             </form>
           </div>

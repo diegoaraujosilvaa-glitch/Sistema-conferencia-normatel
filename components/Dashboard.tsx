@@ -77,7 +77,7 @@ const Dashboard: React.FC<DashboardProps> = ({ batches }) => {
   return (
     <div className="space-y-8 animate-in fade-in duration-500 max-w-7xl mx-auto">
       {/* Filtros Estratégicos */}
-      <div className="bg-white p-6 rounded-[32px] shadow-sm border border-slate-100 flex flex-col md:flex-row items-end gap-6">
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-100 flex flex-col md:flex-row items-end gap-6">
         <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
           <div>
             <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5 ml-1 flex items-center gap-2">
@@ -87,7 +87,7 @@ const Dashboard: React.FC<DashboardProps> = ({ batches }) => {
               type="date" 
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 text-xs font-black text-slate-700 focus:ring-2 focus:ring-[#E66B27] outline-none transition-all uppercase"
+              className="w-full bg-slate-50 border border-slate-200 rounded-md px-5 py-3.5 text-xs font-black text-slate-700 focus:ring-2 focus:ring-[#E66B27] outline-none transition-all uppercase"
             />
           </div>
           <div>
@@ -98,7 +98,7 @@ const Dashboard: React.FC<DashboardProps> = ({ batches }) => {
               type="date" 
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 text-xs font-black text-slate-700 focus:ring-2 focus:ring-[#E66B27] outline-none transition-all uppercase"
+              className="w-full bg-slate-50 border border-slate-200 rounded-md px-5 py-3.5 text-xs font-black text-slate-700 focus:ring-2 focus:ring-[#E66B27] outline-none transition-all uppercase"
             />
           </div>
         </div>
@@ -117,9 +117,9 @@ const Dashboard: React.FC<DashboardProps> = ({ batches }) => {
       {/* KPIs de Gestão */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-white p-8 rounded-[40px] shadow-sm border border-slate-100 hover:shadow-xl transition-all border-b-4 border-b-transparent hover:border-b-[#E66B27] group">
+          <div key={i} className="bg-white p-8 rounded-xl shadow-sm border border-slate-100 hover:shadow-xl transition-all border-b-4 border-b-transparent hover:border-b-[#E66B27] group">
             <div className="flex items-center justify-between mb-6">
-              <div className={`${stat.bg} p-4 rounded-[22px] group-hover:scale-110 transition-transform`}>
+              <div className={`${stat.bg} p-4 rounded-md group-hover:scale-110 transition-transform`}>
                 <stat.icon className={stat.color} size={28} />
               </div>
               <TrendingUp size={16} className="text-slate-200" />
@@ -132,7 +132,7 @@ const Dashboard: React.FC<DashboardProps> = ({ batches }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Gráfico de Tendência */}
-        <div className="lg:col-span-2 bg-white p-10 rounded-[48px] shadow-sm border border-slate-100">
+        <div className="lg:col-span-2 bg-white p-10 rounded-xl shadow-sm border border-slate-100">
           <div className="flex items-center justify-between mb-10">
             <div>
               <h3 className="text-sm font-black text-slate-800 tracking-widest uppercase flex items-center gap-3">
@@ -161,9 +161,9 @@ const Dashboard: React.FC<DashboardProps> = ({ batches }) => {
         </div>
 
         {/* Ranking de Conferentes */}
-        <div className="bg-white p-10 rounded-[48px] shadow-sm border border-slate-100 flex flex-col">
+        <div className="bg-white p-10 rounded-xl shadow-sm border border-slate-100 flex flex-col">
           <div className="flex items-center gap-4 mb-10">
-            <div className="bg-orange-50 p-4 rounded-3xl">
+            <div className="bg-orange-50 p-4 rounded-md">
               <Trophy className="text-[#E66B27]" size={28} />
             </div>
             <div>
@@ -174,9 +174,9 @@ const Dashboard: React.FC<DashboardProps> = ({ batches }) => {
 
           <div className="flex-1 space-y-5">
             {ranking.map((item, idx) => (
-              <div key={idx} className="flex items-center justify-between p-5 bg-slate-50/50 rounded-[28px] border border-slate-100 transition-all hover:scale-[1.03] hover:bg-white hover:shadow-md group">
+              <div key={idx} className="flex items-center justify-between p-5 bg-slate-50/50 rounded-md border border-slate-100 transition-all hover:scale-[1.03] hover:bg-white hover:shadow-md group">
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-2xl border-2 flex items-center justify-center text-xs font-black transition-all ${
+                  <div className={`w-10 h-10 rounded-md border-2 flex items-center justify-center text-xs font-black transition-all ${
                     idx === 0 ? 'bg-orange-100 border-[#E66B27] text-[#E66B27]' : 'bg-white border-slate-200 text-slate-400'
                   }`}>
                     {idx + 1}

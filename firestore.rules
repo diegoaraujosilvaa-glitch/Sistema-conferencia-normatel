@@ -1,0 +1,114 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: userId
+    // Fields:
+    //   - id: string (required)
+    //   - name: string (required)
+    //   - username: string (required)
+    //   - role: string (required, enum: ADMIN, SUPERVISOR, CONFERENTE)
+    //   - password: string (optional)
+    //
+    // Collection: branches
+    // Document ID: branchId
+    // Fields:
+    //   - id: string (required)
+    //   - cnpj: string (required)
+    //   - name: string (required)
+    //
+    // Collection: batches
+    // Document ID: batchId
+    // Fields:
+    //   - id: string (required)
+    //   - notes: list (required)
+    //   - products: list (required)
+    //   - startTime: string (required)
+    //   - endTime: string (optional)
+    //   - status: string (required, enum: OPEN, PENDING_SUPERVISOR, APPROVED, REJECTED)
+    //   - conferenteId: string (required)
+    //   - conferenteName: string (required)
+    //   - supervisorId: string (optional)
+    //   - supervisorName: string (optional)
+    //   - justification: string (optional)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN' ||
+          (request.auth.token.email == "diego.araujosilvaa@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['id', 'name', 'username', 'role']) &&
+             data.id is string && data.name is string && data.username is string &&
+             data.role in ['ADMIN', 'SUPERVISOR', 'CONFERENTE'];
+    }
+
+    function isValidBranch(data) {
+      return data.keys().hasAll(['id', 'cnpj', 'name']) &&
+             data.id is string && data.cnpj is string && data.name is string;
+    }
+
+    function isValidBatch(data) {
+      return data.keys().hasAll(['id', 'notes', 'products', 'startTime', 'status', 'conferenteId', 'conferenteName']) &&
+             data.id is string && data.notes is list && data.products is list &&
+             data.startTime is string && data.status in ['OPEN', 'PENDING_SUPERVISOR', 'APPROVED', 'REJECTED'] &&
+             data.conferenteId is string && data.conferenteName is string;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      // Users can read their own profile, admins can read all
+      allow read: if isOwner(userId) || isAdmin();
+      // Admins can create/update/delete any user
+      allow write: if isAdmin();
+      // Users can update their own profile (but not their role)
+      allow update: if isOwner(userId) && isValidUser(request.resource.data) && request.resource.data.role == resource.data.role;
+    }
+
+    match /branches/{branchId} {
+      // All authenticated users can read branches
+      allow read: if isAuthenticated();
+      // Only admins can write branches
+      allow write: if isAdmin();
+    }
+
+    match /batches/{batchId} {
+      // All authenticated users can read batches
+      allow read: if isAuthenticated();
+      // Any authenticated user can create a batch
+      allow create: if isAuthenticated() && isValidBatch(request.resource.data);
+      // Update rules:
+      // 1. Conferente can update their own OPEN batches
+      // 2. Supervisor can update batches pending supervisor
+      // 3. Admin can update any batch
+      allow update: if isAuthenticated() && isValidBatch(request.resource.data) && 
+                    (isAdmin() || 
+                     (resource.data.conferenteId == request.auth.uid && resource.data.status == 'OPEN') ||
+                     (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'SUPERVISOR' && resource.data.status == 'PENDING_SUPERVISOR'));
+      // Only admins can delete batches
+      allow delete: if isAdmin();
+    }
+  }
+}

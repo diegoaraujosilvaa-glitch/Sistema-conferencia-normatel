@@ -206,11 +206,11 @@ const ReportModal: React.FC<ReportModalProps> = ({ batch, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md">
-      <div className="bg-white w-full max-w-2xl rounded-[32px] shadow-2xl overflow-hidden animate-in zoom-in duration-300 border border-white/10">
+      <div className="bg-white w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden animate-in zoom-in duration-300 border border-white/10">
         
         <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
           <div className="flex items-center gap-4">
-            <div className="bg-[#E66B27] p-2.5 rounded-xl text-white shadow-lg shadow-orange-500/20">
+            <div className="bg-[#E66B27] p-2.5 rounded-md text-white shadow-lg shadow-orange-500/20">
               <ShieldCheck size={24} />
             </div>
             <div>
@@ -218,13 +218,13 @@ const ReportModal: React.FC<ReportModalProps> = ({ batch, onClose }) => {
               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Padrão Normatel • PDF Vetorial</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-red-50 hover:text-red-500 rounded-xl transition-all">
+          <button onClick={onClose} className="p-2 hover:bg-red-50 hover:text-red-500 rounded-md transition-all">
             <X size={24} />
           </button>
         </div>
 
         <div className="p-10 text-center flex flex-col items-center">
-          <div className="w-20 h-20 bg-orange-50 text-[#E66B27] rounded-full flex items-center justify-center mb-6 shadow-inner">
+          <div className="w-20 h-20 bg-orange-50 text-[#E66B27] rounded-md flex items-center justify-center mb-6 shadow-inner">
             <FileText size={40} />
           </div>
           <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight mb-3">Documento Gerado</h3>
@@ -233,11 +233,11 @@ const ReportModal: React.FC<ReportModalProps> = ({ batch, onClose }) => {
             Divergências estão destacadas em vermelho para facilitar a auditoria.
           </p>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-md">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-md">
             <button 
               onClick={() => generatePDF('preview')}
               disabled={isPreviewing || isExporting}
-              className="flex items-center justify-center gap-3 bg-white border-2 border-slate-200 hover:border-[#E66B27] hover:text-[#E66B27] text-slate-700 px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all disabled:opacity-50"
+              className="flex items-center justify-center gap-3 bg-white border-2 border-slate-200 hover:border-[#E66B27] hover:text-[#E66B27] text-slate-700 px-6 py-4 rounded-md font-black text-xs uppercase tracking-widest transition-all disabled:opacity-50"
             >
               {isPreviewing ? <Loader2 className="animate-spin" size={18} /> : <Eye size={18} />}
               Visualizar
@@ -245,7 +245,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ batch, onClose }) => {
             <button 
               onClick={() => generatePDF('download')}
               disabled={isPreviewing || isExporting}
-              className="flex items-center justify-center gap-3 bg-[#E66B27] hover:bg-[#d55a1a] text-white px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-orange-500/20 disabled:opacity-50"
+              className="flex items-center justify-center gap-3 bg-[#E66B27] hover:bg-[#d55a1a] text-white px-6 py-4 rounded-md font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-orange-500/20 disabled:opacity-50"
             >
               {isExporting ? <Loader2 className="animate-spin" size={18} /> : <Download size={18} />}
               Baixar PDF

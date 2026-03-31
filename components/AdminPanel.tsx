@@ -108,7 +108,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, currentUser, onAddUser, 
         </div>
         <button 
           onClick={() => setShowAdd(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md font-bold transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20"
         >
           <UserPlus size={20} />
           Cadastrar Novo Usuário
@@ -116,15 +116,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, currentUser, onAddUser, 
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+        <div className="bg-white p-6 rounded-md border border-slate-100 shadow-sm">
           <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Total de Usuários</p>
           <p className="text-3xl font-black text-slate-800">{users.length}</p>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+        <div className="bg-white p-6 rounded-md border border-slate-100 shadow-sm">
           <p className="text-xs font-black text-orange-400 uppercase tracking-widest mb-1">Supervisores</p>
           <p className="text-3xl font-black text-slate-800">{users.filter(u => u.role === UserRole.SUPERVISOR).length}</p>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+        <div className="bg-white p-6 rounded-md border border-slate-100 shadow-sm">
           <p className="text-xs font-black text-blue-400 uppercase tracking-widest mb-1">Conferentes</p>
           <p className="text-3xl font-black text-slate-800">{users.filter(u => u.role === UserRole.CONFERENTE).length}</p>
         </div>
@@ -135,13 +135,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, currentUser, onAddUser, 
         <input 
           type="text"
           placeholder="Pesquisar por nome ou login..."
-          className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm transition-all"
+          className="w-full bg-white border border-slate-200 rounded-md py-4 pl-12 pr-4 focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm transition-all"
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
         />
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <div className="bg-white rounded-md shadow-sm border border-slate-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead className="bg-slate-50 border-b border-slate-100">
@@ -157,7 +157,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, currentUser, onAddUser, 
                 <tr key={u.id} className="hover:bg-slate-50/50 transition-colors group">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-xl bg-slate-100 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors`}>
+                      <div className={`p-2 rounded-md bg-slate-100 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors`}>
                         <UserIcon size={20} />
                       </div>
                       <span className="font-bold text-slate-800">{u.name}</span>
@@ -182,7 +182,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, currentUser, onAddUser, 
                         <button 
                           onClick={() => setResetPassUser(u)}
                           title="Redefinir Senha"
-                          className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
+                          className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all"
                         >
                           <Key size={18} />
                         </button>
@@ -200,7 +200,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, currentUser, onAddUser, 
                         <button 
                           onClick={() => onDeleteUser(u.id)}
                           title="Excluir Usuário"
-                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-all"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -227,7 +227,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, currentUser, onAddUser, 
       {/* Modal Redefinir Senha */}
       {resetPassUser && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in duration-200">
+          <div className="bg-white w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-in zoom-in duration-200">
             <div className="p-6 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
               <div>
                 <h4 className="text-lg font-black text-slate-800 uppercase tracking-tight">Redefinir Senha</h4>
@@ -273,7 +273,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, currentUser, onAddUser, 
 
       {showAdd && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white w-full max-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in duration-200">
+          <div className="bg-white w-full max-lg rounded-xl shadow-2xl overflow-hidden animate-in zoom-in duration-200">
             <div className="p-6 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
               <h4 className="text-xl font-black text-slate-800 uppercase tracking-tight">Novo Cadastro</h4>
               <button onClick={() => setShowAdd(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
@@ -287,7 +287,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, currentUser, onAddUser, 
                   <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Nome Completo</label>
                   <input 
                     required
-                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-medium"
+                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-medium"
                     placeholder="Ex: João da Silva"
                     value={newUser.name}
                     onChange={e => setNewUser({...newUser, name: e.target.value})}
@@ -298,7 +298,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, currentUser, onAddUser, 
                   <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Nome de Usuário (Login)</label>
                   <input 
                     required
-                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-mono text-sm"
+                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-mono text-sm"
                     placeholder="ex: joao.silva"
                     value={newUser.username}
                     onChange={e => setNewUser({...newUser, username: e.target.value})}
@@ -309,7 +309,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, currentUser, onAddUser, 
                   <div>
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Perfil de Acesso</label>
                     <select 
-                      className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-bold text-slate-700"
+                      className="w-full bg-slate-50 border border-slate-200 p-4 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-bold text-slate-700"
                       value={newUser.role}
                       onChange={e => setNewUser({...newUser, role: e.target.value as UserRole})}
                     >
@@ -326,7 +326,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, currentUser, onAddUser, 
                     <input 
                       required
                       type="password"
-                      className="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                      className="w-full bg-slate-50 border border-slate-200 p-4 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
                       placeholder="••••••••"
                       value={newUser.password}
                       onChange={e => setNewUser({...newUser, password: e.target.value})}
@@ -339,13 +339,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, currentUser, onAddUser, 
                 <button 
                   type="button" 
                   onClick={() => setShowAdd(false)} 
-                  className="flex-1 px-6 py-4 rounded-2xl font-bold text-slate-500 hover:bg-slate-100 transition-all"
+                  className="flex-1 px-6 py-4 rounded-md font-bold text-slate-500 hover:bg-slate-100 transition-all"
                 >
                   Cancelar
                 </button>
                 <button 
                   type="submit" 
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-2xl font-bold transition-all shadow-lg shadow-blue-500/20"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-md font-bold transition-all shadow-lg shadow-blue-500/20"
                 >
                   Salvar Usuário
                 </button>

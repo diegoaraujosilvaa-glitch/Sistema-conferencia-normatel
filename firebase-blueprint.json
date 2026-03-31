@@ -1,0 +1,61 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "System user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "username": { "type": "string" },
+        "role": { "type": "string", "enum": ["CONFERENTE", "SUPERVISOR", "ADMIN"] },
+        "password": { "type": "string" }
+      },
+      "required": ["id", "name", "username", "role"]
+    },
+    "Branch": {
+      "title": "Branch",
+      "description": "Store branch",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "cnpj": { "type": "string" },
+        "name": { "type": "string" }
+      },
+      "required": ["id", "cnpj", "name"]
+    },
+    "ConferenceBatch": {
+      "title": "ConferenceBatch",
+      "description": "A batch of NFe conferences",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "notes": { "type": "array", "items": { "type": "object" } },
+        "products": { "type": "array", "items": { "type": "object" } },
+        "startTime": { "type": "string" },
+        "endTime": { "type": "string" },
+        "status": { "type": "string", "enum": ["OPEN", "PENDING_SUPERVISOR", "APPROVED", "REJECTED"] },
+        "conferenteId": { "type": "string" },
+        "conferenteName": { "type": "string" },
+        "supervisorId": { "type": "string" },
+        "supervisorName": { "type": "string" },
+        "justification": { "type": "string" }
+      },
+      "required": ["id", "notes", "products", "startTime", "status", "conferenteId", "conferenteName"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Collection of users"
+    },
+    "/branches/{branchId}": {
+      "schema": "Branch",
+      "description": "Collection of branches"
+    },
+    "/batches/{batchId}": {
+      "schema": "ConferenceBatch",
+      "description": "Collection of conference batches"
+    }
+  }
+}
