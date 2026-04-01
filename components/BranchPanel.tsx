@@ -97,8 +97,9 @@ const BranchPanel: React.FC<BranchPanelProps> = ({ branches, onAddBranch, onDele
       </div>
 
       <div className="bg-white rounded-md shadow-sm border border-slate-100 overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-slate-50 border-b border-slate-100">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left min-w-[600px]">
+            <thead className="bg-slate-50 border-b border-slate-100">
             <tr className="text-slate-400 text-[10px] font-black uppercase tracking-widest">
               <th className="px-6 py-4">Nome da Filial</th>
               <th className="px-6 py-4">CNPJ</th>
@@ -132,6 +133,7 @@ const BranchPanel: React.FC<BranchPanelProps> = ({ branches, onAddBranch, onDele
           </tbody>
         </table>
       </div>
+    </div>
 
       {showAdd && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">

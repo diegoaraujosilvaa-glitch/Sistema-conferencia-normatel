@@ -104,8 +104,8 @@ const XMLUpload: React.FC<XMLUploadProps> = ({ currentUser, branches, onStartCon
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="bg-white p-10 rounded-xl shadow-sm border border-slate-100 text-center">
-        <div className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-lg p-16 hover:border-[#E66B27] hover:bg-orange-50/30 transition-all group cursor-pointer relative overflow-hidden">
+      <div className="bg-white p-4 sm:p-10 rounded-xl shadow-sm border border-slate-100 text-center">
+        <div className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-lg p-8 sm:p-16 hover:border-[#E66B27] hover:bg-orange-50/30 transition-all group cursor-pointer relative overflow-hidden">
           <input 
             type="file" 
             multiple 
@@ -129,7 +129,7 @@ const XMLUpload: React.FC<XMLUploadProps> = ({ currentUser, branches, onStartCon
 
       {files.length > 0 && (
         <div className="bg-white rounded-lg shadow-xl border border-slate-100 overflow-hidden animate-in zoom-in duration-300">
-          <div className="p-6 px-10 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
+          <div className="p-4 sm:p-6 px-4 sm:px-10 bg-slate-900 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div>
               <h4 className="font-black text-white text-xs uppercase tracking-widest">Documentos Preparados</h4>
               <p className="text-slate-500 text-[9px] font-bold uppercase mt-1 tracking-widest">{files.length} arquivos prontos para bipagem</p>
@@ -137,7 +137,7 @@ const XMLUpload: React.FC<XMLUploadProps> = ({ currentUser, branches, onStartCon
             <button 
               onClick={initConference}
               disabled={loading}
-              className="bg-[#E66B27] hover:bg-[#d55a1a] text-white px-8 py-3.5 rounded-md font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-xl shadow-orange-500/20 flex items-center gap-3 transform active:scale-95"
+              className="w-full sm:w-auto bg-[#E66B27] hover:bg-[#d55a1a] text-white px-8 py-3.5 rounded-md font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-xl shadow-orange-500/20 flex items-center justify-center gap-3 transform active:scale-95"
             >
               <CheckCircle size={18} />
               Iniciar Conferência

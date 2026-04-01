@@ -46,7 +46,7 @@ const SupervisorCheck: React.FC<SupervisorCheckProps> = ({ batch, users, onAppro
 
   if (!validatedUser) {
     return (
-      <div className="max-w-md mx-auto mt-20 bg-white p-8 rounded-md shadow-xl border border-slate-100 animate-in fade-in zoom-in duration-300">
+      <div className="max-w-md mx-auto mt-10 lg:mt-20 bg-white p-6 sm:p-8 rounded-md shadow-xl border border-slate-100 animate-in fade-in zoom-in duration-300">
         <div className="text-center mb-8">
           <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
             <ShieldCheck className="text-orange-600" size={32} />
@@ -120,8 +120,8 @@ const SupervisorCheck: React.FC<SupervisorCheckProps> = ({ batch, users, onAppro
           </span>
         </div>
 
-        <div className="overflow-hidden border border-slate-100 rounded-xl mb-8 shadow-sm">
-          <table className="w-full text-left">
+        <div className="overflow-x-auto border border-slate-100 rounded-xl mb-8 shadow-sm">
+          <table className="w-full text-left min-w-[600px]">
             <thead className="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest">
               <tr>
                 <th className="px-6 py-4">Produto</th>
