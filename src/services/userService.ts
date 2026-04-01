@@ -1,7 +1,7 @@
 
 import { db } from '../lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { UserRole } from '../../types';
+import { collection, addDoc, serverTimestamp, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { UserRole, User } from '../../types';
 
 /**
  * Cadastra um novo usuário no Firestore seguindo os padrões da Normatel.
@@ -37,6 +37,38 @@ export const cadastrarUsuarioConferente = async (dados: { name: string; username
     } else {
       alert("Erro ao cadastrar usuário. Verifique o console.");
     }
+    throw error;
+  }
+};
+
+/**
+ * Exclui um usuário do Firestore.
+ */
+export const excluirUsuario = async (id: string) => {
+  try {
+    await deleteDoc(doc(db, "users", id));
+    console.log("Usuário excluído com sucesso!");
+  } catch (error) {
+    console.error("Erro ao excluir usuário:", error);
+    throw error;
+  }
+};
+
+/**
+ * Atualiza os dados de um usuário no Firestore.
+ */
+export const atualizarUsuario = async (id: string, dados: Partial<User>) => {
+  try {
+    const docRef = doc(db, "users", id);
+    const updateData: any = { ...dados };
+    
+    if (dados.name) updateData.name = dados.name.toUpperCase().trim();
+    if (dados.username) updateData.username = dados.username.toLowerCase().trim();
+    
+    await updateDoc(docRef, updateData);
+    console.log("Usuário atualizado com sucesso!");
+  } catch (error) {
+    console.error("Erro ao atualizar usuário:", error);
     throw error;
   }
 };

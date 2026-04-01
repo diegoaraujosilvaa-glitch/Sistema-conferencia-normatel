@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from './src/lib/firebase';
-import { User, UserRole, ConferenceBatch, Branch } from './types';
+import { User, UserRole, ConferenceBatch, Branch, DashboardStats } from './types';
 import { INITIAL_USERS, INITIAL_BRANCHES, STORAGE_KEYS } from './constants';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
@@ -14,6 +14,9 @@ import BranchPanel from './components/BranchPanel';
 import ReportModal from './components/ReportModal';
 import PausedBatches from './components/PausedBatches';
 import { PackageCheck, ShieldCheck } from 'lucide-react';
+import { listenBranches } from './src/services/branchService';
+import { listenConferenceBatches, cadastrarConferenceBatch, atualizarConferenceBatch } from './src/services/conferenceService';
+import { listenDashboardStats } from './src/services/statsService';
 
 const App: React.FC = () => {
   // Auth State
@@ -49,14 +52,75 @@ const App: React.FC = () => {
 
     return () => unsubscribe();
   }, []);
-  const [branches, setBranches] = useState<Branch[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.BRANCHES);
-    return saved ? JSON.parse(saved) : INITIAL_BRANCHES;
-  });
-  const [batches, setBatches] = useState<ConferenceBatch[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.BATCHES);
-    return saved ? JSON.parse(saved) : [];
-  });
+
+  const [branches, setBranches] = useState<Branch[]>(INITIAL_BRANCHES);
+  const [batches, setBatches] = useState<ConferenceBatch[]>([]);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+
+  // Sync Branches from Firestore
+  useEffect(() => {
+    const unsubscribe = listenBranches((data) => {
+      if (data.length > 0) setBranches(data);
+      else setBranches(INITIAL_BRANCHES);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Sync Batches from Firestore
+  useEffect(() => {
+    const unsubscribe = listenConferenceBatches((data) => {
+      setBatches(data);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Sync Stats from Firestore
+  useEffect(() => {
+    const unsubscribe = listenDashboardStats((data) => {
+      setStats(data);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Update Dashboard Stats in Firestore when batches change
+  useEffect(() => {
+    if (batches.length > 0) {
+      const totalConferences = batches.length;
+      const totalDivergences = batches.filter(b => 
+        b.products.some(p => parseFloat(p.quantityExpected.toFixed(3)) !== parseFloat(p.quantityChecked.toFixed(3)))
+      ).length;
+      
+      const accuracyRate = totalConferences > 0 ? ((totalConferences - totalDivergences) / totalConferences) * 100 : 100;
+      
+      const map: Record<string, { count: number, accuracy: number }> = {};
+      batches.forEach(b => {
+        if (!map[b.conferenteName]) map[b.conferenteName] = { count: 0, accuracy: 0 };
+        map[b.conferenteName].count += 1;
+        const hasDiv = b.products.some(p => parseFloat(p.quantityExpected.toFixed(3)) !== parseFloat(p.quantityChecked.toFixed(3)));
+        if (!hasDiv) map[b.conferenteName].accuracy += 1;
+      });
+
+      const ranking = Object.entries(map)
+        .map(([name, data]) => ({
+          name,
+          score: (data.accuracy / data.count) * 100
+        }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5);
+
+      const newStats: DashboardStats = {
+        totalConferences,
+        discrepancyRate: 100 - accuracyRate,
+        averageTime: "Calculando...", // Poderia ser calculado se tivéssemos startTime e endTime como Timestamps
+        conferenteRanking: ranking
+      };
+
+      // Importar e chamar a função de atualização
+      import('./src/services/statsService').then(({ atualizarDashboardStats }) => {
+        atualizarDashboardStats(newStats).catch(err => console.error("Erro ao atualizar estatísticas globais:", err));
+      });
+    }
+  }, [batches]);
   
   // Lote Ativo
   const [currentBatch, setCurrentBatch] = useState<ConferenceBatch | null>(() => {
@@ -79,8 +143,6 @@ const App: React.FC = () => {
       localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
     }
   }, [users]);
-  useEffect(() => localStorage.setItem(STORAGE_KEYS.BRANCHES, JSON.stringify(branches)), [branches]);
-  useEffect(() => localStorage.setItem(STORAGE_KEYS.BATCHES, JSON.stringify(batches)), [batches]);
   useEffect(() => localStorage.setItem(STORAGE_KEYS.PAUSED_BATCHES, JSON.stringify(pausedBatches)), [pausedBatches]);
   
   useEffect(() => {
@@ -155,34 +217,43 @@ const App: React.FC = () => {
     setViewingReport(null);
   };
 
-  const finalizeConference = () => {
+  const finalizeConference = async () => {
     if (!currentBatch) return;
     const hasDivergence = currentBatch.products.some(p => p.quantityExpected !== p.quantityChecked);
     if (hasDivergence) setIsSupervisorView(true);
     else {
-      const finalBatch = { ...currentBatch, status: 'APPROVED' as const, endTime: new Date().toISOString() };
-      setBatches(prev => [finalBatch, ...prev]);
-      setCurrentBatch(null);
-      setActiveTab('history');
-      setViewingReport(finalBatch);
+      try {
+        const finalBatch = { ...currentBatch, status: 'APPROVED' as const };
+        await cadastrarConferenceBatch(finalBatch);
+        setCurrentBatch(null);
+        setActiveTab('history');
+        // O viewingReport será atualizado via listener do Firestore se necessário, 
+        // ou podemos setar localmente para exibição imediata
+        setViewingReport(finalBatch);
+      } catch (error) {
+        console.error("Erro ao finalizar conferência:", error);
+      }
     }
   };
 
-  const handleSupervisorApprove = (supervisor: User, justification: string) => {
+  const handleSupervisorApprove = async (supervisor: User, justification: string) => {
     if (!currentBatch) return;
-    const finalBatch = { 
-      ...currentBatch, 
-      status: 'APPROVED' as const, 
-      endTime: new Date().toISOString(),
-      supervisorId: supervisor.id,
-      supervisorName: supervisor.name,
-      justification
-    };
-    setBatches(prev => [finalBatch, ...prev]);
-    setCurrentBatch(null);
-    setIsSupervisorView(false);
-    setActiveTab('history');
-    setViewingReport(finalBatch);
+    try {
+      const finalBatch = { 
+        ...currentBatch, 
+        status: 'APPROVED' as const, 
+        supervisorId: supervisor.id,
+        supervisorName: supervisor.name,
+        justification
+      };
+      await cadastrarConferenceBatch(finalBatch);
+      setCurrentBatch(null);
+      setIsSupervisorView(false);
+      setActiveTab('history');
+      setViewingReport(finalBatch);
+    } catch (error) {
+      console.error("Erro ao aprovar conferência pelo supervisor:", error);
+    }
   };
 
   // UI Logic
@@ -193,7 +264,7 @@ const App: React.FC = () => {
     content = <BlindCheck batch={currentBatch} onUpdateBatch={setCurrentBatch} onFinish={finalizeConference} onCancel={() => { setCurrentBatch(null); setActiveTab('upload'); }} onPause={handlePauseActive} />;
   } else {
     switch (activeTab) {
-      case 'dashboard': content = <Dashboard batches={batches} />; break;
+      case 'dashboard': content = <Dashboard batches={batches} firestoreStats={stats} />; break;
       case 'upload': content = <XMLUpload currentUser={user!} branches={branches} onStartConference={startNewConference} />; break;
       case 'paused': content = <PausedBatches pausedBatches={pausedBatches} onResume={handleResumeBatch} onDelete={deletePausedBatch} />; break;
       case 'history': content = (

@@ -16,13 +16,14 @@ import {
   Lock,
   Save
 } from 'lucide-react';
+import { excluirUsuario, atualizarUsuario } from '../src/services/userService';
 
 interface AdminPanelProps {
   users: User[];
   currentUser: User;
-  onAddUser: (user: User) => void;
-  onDeleteUser: (userId: string) => void;
-  onUpdateUser: (user: User) => void;
+  onAddUser?: (user: User) => void;
+  onDeleteUser?: (userId: string) => void;
+  onUpdateUser?: (user: User) => void;
 }
 
 const AdminPanel: React.FC<AdminPanelProps> = ({ users, currentUser, onAddUser, onDeleteUser, onUpdateUser }) => {
@@ -30,11 +31,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, currentUser, onAddUser, 
   const [resetPassUser, setResetPassUser] = useState<User | null>(null);
   const [newPassword, setNewPassword] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // IDs de usuários que não podem ser excluídos por segurança do sistema
   const PROTECTED_IDS = ['1', '4'];
 
-  const handleResetPassword = (e: React.FormEvent) => {
+  const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (resetPassUser && newPassword) {
       // Bloqueio de segurança nível execução: Supervisor não altera Admin
@@ -44,10 +46,32 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, currentUser, onAddUser, 
         return;
       }
 
-      onUpdateUser({ ...resetPassUser, password: newPassword });
-      setResetPassUser(null);
-      setNewPassword('');
-      alert(`Senha de ${resetPassUser.name} redefinida com sucesso!`);
+      setLoading(true);
+      try {
+        await atualizarUsuario(resetPassUser.id, { password: newPassword });
+        setResetPassUser(null);
+        setNewPassword('');
+        alert(`Senha de ${resetPassUser.name} redefinida com sucesso!`);
+      } catch (error) {
+        console.error("Erro ao redefinir senha:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleDeleteUser = async (id: string, name: string) => {
+    if (PROTECTED_IDS.includes(id) || id === currentUser.id) {
+      alert("Este usuário é protegido e não pode ser excluído.");
+      return;
+    }
+
+    if (window.confirm(`Deseja realmente excluir o usuário ${name}?`)) {
+      try {
+        await excluirUsuario(id);
+      } catch (error) {
+        console.error("Erro ao excluir usuário:", error);
+      }
     }
   };
 
@@ -176,7 +200,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, currentUser, onAddUser, 
                         </div>
                       ) : (
                         <button 
-                          onClick={() => onDeleteUser(u.id)}
+                          onClick={() => handleDeleteUser(u.id, u.name)}
                           title="Excluir Usuário"
                           className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-all"
                         >
@@ -238,10 +262,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, currentUser, onAddUser, 
                 </button>
                 <button 
                   type="submit" 
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-2xl font-bold transition-all shadow-lg flex items-center justify-center gap-2"
+                  disabled={loading}
+                  className={`flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-2xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <Save size={18} />
-                  Atualizar
+                  {loading ? 'Salvando...' : 'Atualizar'}
                 </button>
               </div>
             </form>

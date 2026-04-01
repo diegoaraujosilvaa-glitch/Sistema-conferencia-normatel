@@ -72,14 +72,24 @@ const XMLUpload: React.FC<XMLUploadProps> = ({ currentUser, branches, onStartCon
   };
 
   const initConference = () => {
-    if (parsedData.length === 0) return;
+    if (parsedData.length === 0) {
+      alert("Por favor, importe ao menos um arquivo XML.");
+      return;
+    }
 
     const allNfes = parsedData.map(d => d.info);
     const allProds = parsedData.flatMap(d => d.products);
+    
+    // VALIDAÇÃO CRÍTICA: Impede que o lote seja iniciado sem produtos ou notas
+    if (allNfes.length === 0 || allProds.length === 0) {
+      alert("Erro: Dados da Nota Fiscal incompletos.");
+      return;
+    }
+
     const consolidated = consolidateProducts(allProds);
 
     const newBatch: ConferenceBatch = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: `BATCH-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`.toUpperCase(),
       notes: allNfes,
       products: consolidated,
       startTime: new Date().toISOString(),
@@ -88,6 +98,7 @@ const XMLUpload: React.FC<XMLUploadProps> = ({ currentUser, branches, onStartCon
       conferenteName: currentUser.name
     };
 
+    console.log("Iniciando nova conferência...", newBatch);
     onStartConference(newBatch);
   };
 

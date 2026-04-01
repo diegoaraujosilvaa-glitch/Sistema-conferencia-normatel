@@ -4,7 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   Cell, PieChart, Pie
 } from 'recharts';
-import { ConferenceBatch, UserRole } from '../types';
+import { ConferenceBatch, UserRole, DashboardStats } from '../types';
 import { 
   CheckCircle2, 
   AlertTriangle, 
@@ -21,9 +21,10 @@ import {
 
 interface DashboardProps {
   batches: ConferenceBatch[];
+  firestoreStats?: DashboardStats | null;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ batches }) => {
+const Dashboard: React.FC<DashboardProps> = ({ batches, firestoreStats }) => {
   const [startDate, setStartDate] = useState<string>(() => {
     const d = new Date();
     d.setDate(d.getDate() - 7);
@@ -39,6 +40,10 @@ const Dashboard: React.FC<DashboardProps> = ({ batches }) => {
   }, [batches, startDate, endDate]);
 
   const stats = useMemo(() => {
+    // Se tivermos estatísticas do Firestore e não houver filtros de data ativos (ou se quisermos priorizar o Firestore)
+    // No entanto, o Dashboard tem filtros locais, então o cálculo local é mais flexível para o usuário.
+    // Vamos usar o cálculo local para os KPIs, mas poderíamos exibir os globais do Firestore em outro lugar.
+    
     const totalConferences = filteredBatches.length;
     const totalDivergences = filteredBatches.filter(b => 
       b.products.some(p => parseFloat(p.quantityExpected.toFixed(3)) !== parseFloat(p.quantityChecked.toFixed(3)))

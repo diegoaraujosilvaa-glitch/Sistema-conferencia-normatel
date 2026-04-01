@@ -2,30 +2,66 @@
 import React, { useState } from 'react';
 import { Branch } from '../types';
 import { Building2, Plus, Trash2, Search, X, Save, AlertCircle } from 'lucide-react';
+import { cadastrarBranch, excluirBranch } from '../src/services/branchService';
 
 interface BranchPanelProps {
   branches: Branch[];
-  onAddBranch: (branch: Branch) => void;
-  onDeleteBranch: (id: string) => void;
+  onAddBranch?: (branch: Branch) => void;
+  onDeleteBranch?: (id: string) => void;
 }
 
 const BranchPanel: React.FC<BranchPanelProps> = ({ branches, onAddBranch, onDeleteBranch }) => {
   const [showAdd, setShowAdd] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [newBranch, setNewBranch] = useState({ cnpj: '', name: '' });
+  const [loading, setLoading] = useState(false);
 
-  const handleAdd = (e: React.FormEvent) => {
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // VALIDAÇÃO CRÍTICA: Impede que o Firebase grave ""
+    if (!newBranch.name.trim() || !newBranch.cnpj.trim()) {
+      alert("Por favor, preencha todos os campos da filial.");
+      return;
+    }
+
     if (newBranch.cnpj.length < 14) {
       alert("CNPJ deve conter 14 dígitos.");
       return;
     }
-    onAddBranch({
-      id: Math.random().toString(36).substr(2, 9),
-      ...newBranch
-    });
-    setNewBranch({ cnpj: '', name: '' });
-    setShowAdd(false);
+
+    setLoading(true);
+
+    try {
+      // Utilizando a nova função de cadastro que resolve o problema de campos vazios e trata erros de permissão
+      await cadastrarBranch({
+        name: newBranch.name,
+        cnpj: newBranch.cnpj
+      });
+      
+      setNewBranch({ cnpj: '', name: '' });
+      setShowAdd(false);
+      if (onAddBranch) {
+        // Se houver um callback local, podemos chamar, mas o App.tsx já deve estar ouvindo o Firestore
+      }
+    } catch (error) {
+      console.error("Erro no formulário de cadastro de filial:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string, name: string) => {
+    if (window.confirm(`Excluir a filial ${name}?`)) {
+      try {
+        await excluirBranch(id);
+        if (onDeleteBranch) {
+          // Se houver um callback local, podemos chamar, mas o App.tsx já deve estar ouvindo o Firestore
+        }
+      } catch (error) {
+        console.error("Erro ao excluir filial:", error);
+      }
+    }
   };
 
   const filteredBranches = branches.filter(b => 
@@ -85,7 +121,7 @@ const BranchPanel: React.FC<BranchPanelProps> = ({ branches, onAddBranch, onDele
                 </td>
                 <td className="px-6 py-4 text-right">
                   <button 
-                    onClick={() => { if(window.confirm(`Excluir a filial ${b.name}?`)) onDeleteBranch(b.id) }}
+                    onClick={() => handleDelete(b.id, b.name)}
                     className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
                   >
                     <Trash2 size={18} />
@@ -134,7 +170,14 @@ const BranchPanel: React.FC<BranchPanelProps> = ({ branches, onAddBranch, onDele
 
               <div className="pt-4 flex gap-3">
                 <button type="button" onClick={() => setShowAdd(false)} className="flex-1 px-6 py-4 rounded-md font-bold text-slate-500 hover:bg-slate-100 transition-all">Cancelar</button>
-                <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-md font-bold transition-all shadow-lg flex items-center justify-center gap-2"><Save size={18} /> Salvar Filial</button>
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className={`flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-md font-bold transition-all shadow-lg flex items-center justify-center gap-2 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <Save size={18} /> 
+                  {loading ? 'Salvando...' : 'Salvar Filial'}
+                </button>
               </div>
             </form>
           </div>
