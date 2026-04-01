@@ -11,22 +11,31 @@ import AdminPanel from './components/AdminPanel';
 import BranchPanel from './components/BranchPanel';
 import ReportModal from './components/ReportModal';
 import PausedBatches from './components/PausedBatches';
-import { PackageCheck, LogIn } from 'lucide-react';
-import { useFirebase } from './FirebaseContext';
+import { PackageCheck, ShieldCheck } from 'lucide-react';
 
 const App: React.FC = () => {
-  const { 
-    users, branches, batches, currentUser: fbCurrentUser, firebaseUser, loading,
-    login: fbLogin, logout: fbLogout, addUser, deleteUser, updateUser, addBranch, deleteBranch, addBatch, updateBatch
-  } = useFirebase();
-
   // Auth State
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
+    return saved ? JSON.parse(saved) : null;
+  });
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
   const [loginError, setLoginError] = useState('');
 
   // App State
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [users, setUsers] = useState<User[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.USERS);
+    return saved ? JSON.parse(saved) : INITIAL_USERS;
+  });
+  const [branches, setBranches] = useState<Branch[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.BRANCHES);
+    return saved ? JSON.parse(saved) : INITIAL_BRANCHES;
+  });
+  const [batches, setBatches] = useState<ConferenceBatch[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.BATCHES);
+    return saved ? JSON.parse(saved) : [];
+  });
   
   // Lote Ativo
   const [currentBatch, setCurrentBatch] = useState<ConferenceBatch | null>(() => {
@@ -43,7 +52,10 @@ const App: React.FC = () => {
   const [isSupervisorView, setIsSupervisorView] = useState(false);
   const [viewingReport, setViewingReport] = useState<ConferenceBatch | null>(null);
 
-  // Sync Local Storage for paused/active batches (could also be in Firebase)
+  // Sync Storage
+  useEffect(() => localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users)), [users]);
+  useEffect(() => localStorage.setItem(STORAGE_KEYS.BRANCHES, JSON.stringify(branches)), [branches]);
+  useEffect(() => localStorage.setItem(STORAGE_KEYS.BATCHES, JSON.stringify(batches)), [batches]);
   useEffect(() => localStorage.setItem(STORAGE_KEYS.PAUSED_BATCHES, JSON.stringify(pausedBatches)), [pausedBatches]);
   
   useEffect(() => {
@@ -54,25 +66,10 @@ const App: React.FC = () => {
     }
   }, [currentBatch]);
 
-  // Handle Firebase User
   useEffect(() => {
-    if (firebaseUser && fbCurrentUser) {
-      setUser(fbCurrentUser);
-    } else if (!firebaseUser) {
-      // Fallback to local session if not using Google Auth
-      const saved = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
-      if (saved) setUser(JSON.parse(saved));
-    }
-  }, [firebaseUser, fbCurrentUser]);
-
-  // Initial Data Migration (Seed)
-  useEffect(() => {
-    const isAdminEmail = firebaseUser?.email === "diego.araujosilvaa@gmail.com" && firebaseUser?.emailVerified;
-    if (!loading && firebaseUser && isAdminEmail && users.length === 0 && branches.length === 0) {
-      INITIAL_USERS.forEach(u => addUser(u));
-      INITIAL_BRANCHES.forEach(b => addBranch(b));
-    }
-  }, [loading, firebaseUser, users, branches]);
+    if (user) localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
+    else localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+  }, [user]);
 
   // Handlers
   const startNewConference = (batch: ConferenceBatch) => {
@@ -115,7 +112,6 @@ const App: React.FC = () => {
     const found = users.find(u => u.username === loginForm.username && u.password === loginForm.password);
     if (found) {
       setUser(found);
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(found));
       setLoginError('');
       if (currentBatch) setActiveTab('checking');
       else if (found.role === UserRole.CONFERENTE) setActiveTab('upload');
@@ -126,11 +122,7 @@ const App: React.FC = () => {
   };
 
   const handleLogout = () => {
-    if (firebaseUser) {
-      fbLogout();
-    }
     setUser(null);
-    localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
     setLoginForm({ username: '', password: '' });
     setLoginError('');
     setIsSupervisorView(false);
@@ -138,20 +130,20 @@ const App: React.FC = () => {
     setViewingReport(null);
   };
 
-  const finalizeConference = async () => {
+  const finalizeConference = () => {
     if (!currentBatch) return;
     const hasDivergence = currentBatch.products.some(p => p.quantityExpected !== p.quantityChecked);
     if (hasDivergence) setIsSupervisorView(true);
     else {
       const finalBatch = { ...currentBatch, status: 'APPROVED' as const, endTime: new Date().toISOString() };
-      await addBatch(finalBatch);
+      setBatches(prev => [finalBatch, ...prev]);
       setCurrentBatch(null);
       setActiveTab('history');
       setViewingReport(finalBatch);
     }
   };
 
-  const handleSupervisorApprove = async (supervisor: User, justification: string) => {
+  const handleSupervisorApprove = (supervisor: User, justification: string) => {
     if (!currentBatch) return;
     const finalBatch = { 
       ...currentBatch, 
@@ -161,20 +153,12 @@ const App: React.FC = () => {
       supervisorName: supervisor.name,
       justification
     };
-    await addBatch(finalBatch);
+    setBatches(prev => [finalBatch, ...prev]);
     setCurrentBatch(null);
     setIsSupervisorView(false);
     setActiveTab('history');
     setViewingReport(finalBatch);
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#E66B27]"></div>
-      </div>
-    );
-  }
 
   // UI Logic
   let content;
@@ -216,8 +200,8 @@ const App: React.FC = () => {
           </table>
         </div>
       ); break;
-      case 'branches': content = <BranchPanel branches={branches} onAddBranch={addBranch} onDeleteBranch={deleteBranch} />; break;
-      case 'admin': content = <AdminPanel users={users} currentUser={user!} onAddUser={addUser} onDeleteUser={deleteUser} onUpdateUser={updateUser} />; break;
+      case 'branches': content = <BranchPanel branches={branches} onAddBranch={(b) => setBranches(prev => [...prev, b])} onDeleteBranch={(id) => setBranches(prev => prev.filter(b => b.id !== id))} />; break;
+      case 'admin': content = <AdminPanel users={users} currentUser={user!} onAddUser={(u) => setUsers(prev => [...prev, u])} onDeleteUser={(id) => setUsers(prev => prev.filter(u => u.id !== id))} onUpdateUser={(u) => setUsers(prev => prev.map(us => us.id === u.id ? u : us))} />; break;
       default: content = <Dashboard batches={batches} />;
     }
   }
@@ -249,16 +233,6 @@ const App: React.FC = () => {
                 Entrar no Sistema
               </button>
             </form>
-            
-            <div className="mt-6 pt-6 border-t border-slate-100">
-              <button 
-                onClick={fbLogin}
-                className="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold py-4 rounded-md transition-all flex items-center justify-center gap-3 text-xs uppercase tracking-widest"
-              >
-                <LogIn size={18} className="text-[#E66B27]" />
-                Entrar com Google
-              </button>
-            </div>
           </div>
           <div className="p-6 bg-slate-50 border-t border-slate-100 text-center">
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">CheckMaster Logistics v2.9.4</p>
