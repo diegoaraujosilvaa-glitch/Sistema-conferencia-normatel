@@ -1,12 +1,12 @@
 
 import { db } from '../lib/firebase';
-import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, deleteDoc, setDoc } from 'firebase/firestore';
 import { ConferenceBatch } from '../../types';
 
 /**
  * Cadastra um novo lote de conferência no Firestore com validação rigorosa.
  */
-export const cadastrarConferenceBatch = async (batch: Omit<ConferenceBatch, 'id'>) => {
+export const cadastrarConferenceBatch = async (batch: ConferenceBatch) => {
   // VALIDAÇÃO CRÍTICA: Impede que o Firebase grave "" em campos essenciais
   if (!batch.conferenteId || !batch.conferenteName || batch.notes.length === 0 || batch.products.length === 0) {
     console.error("Erro: Lote de conferência incompleto.");
@@ -17,23 +17,37 @@ export const cadastrarConferenceBatch = async (batch: Omit<ConferenceBatch, 'id'
   try {
     console.log("Enviando lote de conferência para o banco...", batch);
     
-    const docRef = await addDoc(collection(db, "conference_batches"), {
+    // Usamos o ID gerado no frontend para manter consistência entre dispositivos
+    const docRef = doc(db, "conference_batches", batch.id);
+    await setDoc(docRef, {
       ...batch,
       conferenteName: batch.conferenteName.toUpperCase().trim(),
       status: batch.status || 'OPEN',
-      createdAt: serverTimestamp()
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
     });
 
-    console.log("Lote cadastrado com ID:", docRef.id);
-    return docRef.id;
+    console.log("Lote cadastrado com ID:", batch.id);
+    return batch.id;
   } catch (error: any) {
     console.error("Erro ao salvar lote no Firestore:", error);
-    if (error.code === 'permission-denied') {
-      alert("Erro de permissão! Verifique as regras do Firestore.");
-    } else {
-      alert("Erro ao salvar lote. Verifique o console.");
-    }
     throw error;
+  }
+};
+
+/**
+ * Salva o progresso de uma conferência em andamento.
+ */
+export const salvarProgressoConferencia = async (id: string, updates: Partial<ConferenceBatch>) => {
+  try {
+    const docRef = doc(db, "conference_batches", id);
+    await updateDoc(docRef, {
+      ...updates,
+      updatedAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error("Erro ao salvar progresso:", error);
+    // Não alertamos aqui para não interromper o fluxo do usuário em cada clique
   }
 };
 

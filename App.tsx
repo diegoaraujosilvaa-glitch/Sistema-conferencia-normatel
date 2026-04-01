@@ -122,76 +122,93 @@ const App: React.FC = () => {
     }
   }, [batches]);
   
-  // Lote Ativo
-  const [currentBatch, setCurrentBatch] = useState<ConferenceBatch | null>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.ACTIVE_BATCH);
-    return saved ? JSON.parse(saved) : null;
-  });
+  // Lote Ativo (Sincronizado com Firestore)
+  const [currentBatch, setCurrentBatch] = useState<ConferenceBatch | null>(null);
 
-  // Fila de Lotes Pausados
-  const [pausedBatches, setPausedBatches] = useState<ConferenceBatch[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.PAUSED_BATCHES);
-    return saved ? JSON.parse(saved) : [];
-  });
+  // Fila de Lotes Pausados (Derivado do Firestore)
+  const pausedBatches = useMemo(() => {
+    return batches.filter(b => b.status === 'PAUSED');
+  }, [batches]);
+
+  // Efeito para recuperar a conferência ativa do usuário logado ao iniciar
+  useEffect(() => {
+    if (user && batches.length > 0 && !currentBatch) {
+      const active = batches.find(b => b.status === 'IN_PROGRESS' && b.conferenteId === user.id);
+      if (active) {
+        setCurrentBatch(active);
+        setActiveTab('checking');
+      }
+    }
+  }, [user, batches, currentBatch]);
 
   const [isSupervisorView, setIsSupervisorView] = useState(false);
   const [viewingReport, setViewingReport] = useState<ConferenceBatch | null>(null);
 
-  // Sync Storage
-  useEffect(() => {
-    if (users.length > 0 && users !== INITIAL_USERS) {
-      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
-    }
-  }, [users]);
-  useEffect(() => localStorage.setItem(STORAGE_KEYS.PAUSED_BATCHES, JSON.stringify(pausedBatches)), [pausedBatches]);
-  
-  useEffect(() => {
-    if (currentBatch) {
-      localStorage.setItem(STORAGE_KEYS.ACTIVE_BATCH, JSON.stringify(currentBatch));
-    } else {
-      localStorage.removeItem(STORAGE_KEYS.ACTIVE_BATCH);
-    }
-  }, [currentBatch]);
-
-  useEffect(() => {
-    if (user) localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
-    else localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
-  }, [user]);
-
   // Handlers
-  const startNewConference = (batch: ConferenceBatch) => {
-    if (currentBatch) {
-      setPausedBatches(prev => [currentBatch, ...prev]);
+  const startNewConference = async (batch: ConferenceBatch) => {
+    try {
+      // Se já houver uma ativa, pausa ela no Firestore primeiro
+      if (currentBatch) {
+        await atualizarConferenceBatch(currentBatch.id, { status: 'PAUSED' });
+      }
+      
+      // Inicia a nova no Firestore com status IN_PROGRESS
+      const batchToSave = { ...batch, status: 'IN_PROGRESS' as const };
+      await cadastrarConferenceBatch(batchToSave);
+      
+      setCurrentBatch(batchToSave);
+      setActiveTab('checking');
+    } catch (error) {
+      console.error("Erro ao iniciar conferência:", error);
     }
-    setCurrentBatch(batch);
-    setActiveTab('checking');
   };
 
-  const handlePauseActive = () => {
+  const handlePauseActive = async () => {
     if (currentBatch) {
-      setPausedBatches(prev => [currentBatch, ...prev]);
-      setCurrentBatch(null);
-      setActiveTab('upload');
+      try {
+        await atualizarConferenceBatch(currentBatch.id, { status: 'PAUSED' });
+        setCurrentBatch(null);
+        setActiveTab('upload');
+      } catch (error) {
+        console.error("Erro ao pausar conferência:", error);
+      }
     }
   };
 
-  const handleResumeBatch = (batchToResume: ConferenceBatch) => {
-    if (currentBatch) {
-      if (window.confirm("Você possui uma conferência ativa agora. Deseja pausá-la para retomar esta?")) {
-        const batchToPause = { ...currentBatch };
-        setPausedBatches(prev => [batchToPause, ...prev.filter(b => b.id !== batchToResume.id)]);
-        setCurrentBatch(batchToResume);
+  const handleResumeBatch = async (batchToResume: ConferenceBatch) => {
+    try {
+      if (currentBatch) {
+        if (window.confirm("Você possui uma conferência ativa agora. Deseja pausá-la para retomar esta?")) {
+          await atualizarConferenceBatch(currentBatch.id, { status: 'PAUSED' });
+          await atualizarConferenceBatch(batchToResume.id, { status: 'IN_PROGRESS' });
+          setCurrentBatch({ ...batchToResume, status: 'IN_PROGRESS' });
+          setActiveTab('checking');
+        }
+      } else {
+        await atualizarConferenceBatch(batchToResume.id, { status: 'IN_PROGRESS' });
+        setCurrentBatch({ ...batchToResume, status: 'IN_PROGRESS' });
         setActiveTab('checking');
       }
-    } else {
-      setPausedBatches(prev => prev.filter(b => b.id !== batchToResume.id));
-      setCurrentBatch(batchToResume);
-      setActiveTab('checking');
+    } catch (error) {
+      console.error("Erro ao retomar conferência:", error);
     }
   };
 
-  const deletePausedBatch = (id: string) => {
-    setPausedBatches(prev => prev.filter(b => b.id !== id));
+  const deletePausedBatch = async (id: string) => {
+    try {
+      const { excluirConferenceBatch } = await import('./src/services/conferenceService');
+      await excluirConferenceBatch(id);
+    } catch (error) {
+      console.error("Erro ao excluir lote pausado:", error);
+    }
+  };
+
+  const handleUpdateBatchProgress = (updatedBatch: ConferenceBatch) => {
+    setCurrentBatch(updatedBatch);
+    // Salva o progresso no Firestore (pode ser debounced se necessário)
+    import('./src/services/conferenceService').then(({ salvarProgressoConferencia }) => {
+      salvarProgressoConferencia(updatedBatch.id, { products: updatedBatch.products });
+    });
   };
 
   const handleLogin = (e: React.FormEvent) => {
@@ -215,6 +232,7 @@ const App: React.FC = () => {
     setIsSupervisorView(false);
     setActiveTab('dashboard');
     setViewingReport(null);
+    setCurrentBatch(null);
   };
 
   const finalizeConference = async () => {
@@ -223,12 +241,10 @@ const App: React.FC = () => {
     if (hasDivergence) setIsSupervisorView(true);
     else {
       try {
-        const finalBatch = { ...currentBatch, status: 'APPROVED' as const };
-        await cadastrarConferenceBatch(finalBatch);
+        const finalBatch = { ...currentBatch, status: 'APPROVED' as const, endTime: new Date().toISOString() };
+        await atualizarConferenceBatch(currentBatch.id, finalBatch);
         setCurrentBatch(null);
         setActiveTab('history');
-        // O viewingReport será atualizado via listener do Firestore se necessário, 
-        // ou podemos setar localmente para exibição imediata
         setViewingReport(finalBatch);
       } catch (error) {
         console.error("Erro ao finalizar conferência:", error);
@@ -242,11 +258,12 @@ const App: React.FC = () => {
       const finalBatch = { 
         ...currentBatch, 
         status: 'APPROVED' as const, 
+        endTime: new Date().toISOString(),
         supervisorId: supervisor.id,
         supervisorName: supervisor.name,
         justification
       };
-      await cadastrarConferenceBatch(finalBatch);
+      await atualizarConferenceBatch(currentBatch.id, finalBatch);
       setCurrentBatch(null);
       setIsSupervisorView(false);
       setActiveTab('history');
@@ -261,7 +278,7 @@ const App: React.FC = () => {
   if (isSupervisorView && currentBatch) {
     content = <SupervisorCheck batch={currentBatch} users={users} onApprove={handleSupervisorApprove} onReject={() => { setIsSupervisorView(false); setActiveTab('checking'); }} />;
   } else if (currentBatch && activeTab === 'checking') {
-    content = <BlindCheck batch={currentBatch} onUpdateBatch={setCurrentBatch} onFinish={finalizeConference} onCancel={() => { setCurrentBatch(null); setActiveTab('upload'); }} onPause={handlePauseActive} />;
+    content = <BlindCheck batch={currentBatch} onUpdateBatch={handleUpdateBatchProgress} onFinish={finalizeConference} onCancel={() => { deletePausedBatch(currentBatch.id); setCurrentBatch(null); setActiveTab('upload'); }} onPause={handlePauseActive} />;
   } else {
     switch (activeTab) {
       case 'dashboard': content = <Dashboard batches={batches} firestoreStats={stats} />; break;
@@ -274,7 +291,9 @@ const App: React.FC = () => {
               <tr><th className="px-6 py-4">Data/Hora</th><th className="px-6 py-4">Manifesto ID</th><th className="px-6 py-4">Conferente</th><th className="px-6 py-4">Status</th><th className="px-6 py-4 text-right">Ações</th></tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {batches.map(b => (
+              {batches
+                .filter(b => !['IN_PROGRESS', 'PAUSED'].includes(b.status))
+                .map(b => (
                 <tr key={b.id} className="hover:bg-slate-50/50 group transition-colors">
                   <td className="px-6 py-4 text-xs font-bold text-slate-500">{new Date(b.endTime || b.startTime).toLocaleString('pt-BR')}</td>
                   <td className="px-6 py-4 text-sm font-mono font-black text-[#E66B27] uppercase tracking-tighter">#{b.id}</td>
@@ -287,7 +306,7 @@ const App: React.FC = () => {
                   </td>
                 </tr>
               ))}
-              {batches.length === 0 && (
+              {batches.filter(b => !['IN_PROGRESS', 'PAUSED'].includes(b.status)).length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-6 py-20 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest opacity-40">Nenhum manifesto concluído</td>
                 </tr>

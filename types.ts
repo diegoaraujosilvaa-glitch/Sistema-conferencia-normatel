@@ -45,7 +45,7 @@ export interface ConferenceBatch {
   products: NFeProduct[];
   startTime: string;
   endTime?: string;
-  status: 'OPEN' | 'PENDING_SUPERVISOR' | 'APPROVED' | 'REJECTED';
+  status: 'OPEN' | 'IN_PROGRESS' | 'PAUSED' | 'PENDING_SUPERVISOR' | 'APPROVED' | 'REJECTED';
   conferenteId: string;
   conferenteName: string;
   supervisorId?: string;
