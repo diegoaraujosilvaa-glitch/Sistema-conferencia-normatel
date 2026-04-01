@@ -2,21 +2,17 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-// O Vite busca as informações que você acabou de colocar no .env.local
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID, // Corrigido (estava ID_DO_PROJETO...)
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID, // Corrigido (estava ID_DO_APLICATIVO...)
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-// Inicializa o Firebase
 const app = initializeApp(firebaseConfig);
-
-// Exporta as ferramentas para usar no resto do app
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export default app;
