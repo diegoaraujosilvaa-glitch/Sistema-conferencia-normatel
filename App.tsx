@@ -1,5 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { db } from './src/lib/firebase';
 import { User, UserRole, ConferenceBatch, Branch } from './types';
 import { INITIAL_USERS, INITIAL_BRANCHES, STORAGE_KEYS } from './constants';
 import Layout from './components/Layout';
@@ -24,10 +26,29 @@ const App: React.FC = () => {
 
   // App State
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [users, setUsers] = useState<User[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.USERS);
-    return saved ? JSON.parse(saved) : INITIAL_USERS;
-  });
+  const [users, setUsers] = useState<User[]>(INITIAL_USERS);
+
+  // Sync Users from Firestore
+  useEffect(() => {
+    const q = query(collection(db, 'users'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const usersData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as User[];
+      
+      // Se não houver usuários no Firestore, podemos usar os iniciais ou manter vazio
+      if (usersData.length > 0) {
+        setUsers(usersData);
+      } else {
+        setUsers(INITIAL_USERS);
+      }
+    }, (error) => {
+      console.error("Erro ao buscar usuários do Firestore:", error);
+    });
+
+    return () => unsubscribe();
+  }, []);
   const [branches, setBranches] = useState<Branch[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.BRANCHES);
     return saved ? JSON.parse(saved) : INITIAL_BRANCHES;
@@ -53,7 +74,11 @@ const App: React.FC = () => {
   const [viewingReport, setViewingReport] = useState<ConferenceBatch | null>(null);
 
   // Sync Storage
-  useEffect(() => localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users)), [users]);
+  useEffect(() => {
+    if (users.length > 0 && users !== INITIAL_USERS) {
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+    }
+  }, [users]);
   useEffect(() => localStorage.setItem(STORAGE_KEYS.BRANCHES, JSON.stringify(branches)), [branches]);
   useEffect(() => localStorage.setItem(STORAGE_KEYS.BATCHES, JSON.stringify(batches)), [batches]);
   useEffect(() => localStorage.setItem(STORAGE_KEYS.PAUSED_BATCHES, JSON.stringify(pausedBatches)), [pausedBatches]);

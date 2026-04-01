@@ -1,0 +1,100 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Fields: id, name, username, role, password
+    //
+    // Collection: branches
+    // Fields: id, cnpj, name
+    //
+    // Collection: batches
+    // Fields: id, notes, products, startTime, endTime, status, conferenteId, conferenteName, supervisorId, supervisorName, justification
+    //
+    // Collection: pausedBatches
+    // Fields: id, notes, products, startTime, status, conferenteId, conferenteName
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN' ||
+          (request.auth.token.email == "diego.araujosilvaa@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isSupervisor() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'SUPERVISOR' || isAdmin());
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidUser(data) {
+      return data.id is string && data.id.size() > 0 &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.username is string && data.username.size() > 0 && data.username.size() < 50 &&
+             data.role in ['CONFERENTE', 'SUPERVISOR', 'ADMIN'];
+    }
+
+    function isValidBranch(data) {
+      return data.id is string && data.id.size() > 0 &&
+             data.cnpj is string && data.cnpj.size() > 0 &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100;
+    }
+
+    function isValidBatch(data) {
+      return data.id is string && data.id.size() > 0 &&
+             data.notes is list &&
+             data.products is list &&
+             data.startTime is string &&
+             data.status in ['OPEN', 'PENDING_SUPERVISOR', 'APPROVED', 'REJECTED'] &&
+             data.conferenteId is string &&
+             data.conferenteName is string;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /branches/{branchId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    match /batches/{batchId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    match /pausedBatches/{batchId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    match /currentBatches/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+  }
+}

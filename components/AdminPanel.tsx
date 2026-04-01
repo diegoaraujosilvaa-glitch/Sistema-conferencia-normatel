@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { User, UserRole } from '../types';
+import UserRegistrationForm from './UserRegistrationForm';
 import { 
   UserPlus, 
   Shield, 
@@ -29,32 +30,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, currentUser, onAddUser, 
   const [resetPassUser, setResetPassUser] = useState<User | null>(null);
   const [newPassword, setNewPassword] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [newUser, setNewUser] = useState({ 
-    name: '', 
-    username: '', 
-    role: UserRole.CONFERENTE, 
-    password: '' 
-  });
 
   // IDs de usuários que não podem ser excluídos por segurança do sistema
   const PROTECTED_IDS = ['1', '4'];
-
-  const handleAdd = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Validação extra de segurança para impedir que supervisores criem admins via manipulação de DOM/State
-    if (currentUser.role === UserRole.SUPERVISOR && newUser.role === UserRole.ADMIN) {
-      alert("Permissão insuficiente para criar um Administrador.");
-      return;
-    }
-
-    onAddUser({
-      id: Math.random().toString(36).substr(2, 9),
-      ...newUser
-    });
-    setNewUser({ name: '', username: '', role: UserRole.CONFERENTE, password: '' });
-    setShowAdd(false);
-  };
 
   const handleResetPassword = (e: React.FormEvent) => {
     e.preventDefault();
@@ -273,85 +251,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ users, currentUser, onAddUser, 
 
       {showAdd && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white w-full max-lg rounded-xl shadow-2xl overflow-hidden animate-in zoom-in duration-200">
-            <div className="p-6 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
-              <h4 className="text-xl font-black text-slate-800 uppercase tracking-tight">Novo Cadastro</h4>
-              <button onClick={() => setShowAdd(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
-                <X size={24} />
-              </button>
-            </div>
-            
-            <form onSubmit={handleAdd} className="p-8 space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Nome Completo</label>
-                  <input 
-                    required
-                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-medium"
-                    placeholder="Ex: João da Silva"
-                    value={newUser.name}
-                    onChange={e => setNewUser({...newUser, name: e.target.value})}
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Nome de Usuário (Login)</label>
-                  <input 
-                    required
-                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-mono text-sm"
-                    placeholder="ex: joao.silva"
-                    value={newUser.username}
-                    onChange={e => setNewUser({...newUser, username: e.target.value})}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Perfil de Acesso</label>
-                    <select 
-                      className="w-full bg-slate-50 border border-slate-200 p-4 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-bold text-slate-700"
-                      value={newUser.role}
-                      onChange={e => setNewUser({...newUser, role: e.target.value as UserRole})}
-                    >
-                      <option value={UserRole.CONFERENTE}>Conferente</option>
-                      <option value={UserRole.SUPERVISOR}>Supervisor</option>
-                      {/* Apenas Admins podem cadastrar outros Admins */}
-                      {currentUser.role === UserRole.ADMIN && (
-                        <option value={UserRole.ADMIN}>Administrador</option>
-                      )}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Senha Inicial</label>
-                    <input 
-                      required
-                      type="password"
-                      className="w-full bg-slate-50 border border-slate-200 p-4 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
-                      placeholder="••••••••"
-                      value={newUser.password}
-                      onChange={e => setNewUser({...newUser, password: e.target.value})}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-4 flex gap-3">
-                <button 
-                  type="button" 
-                  onClick={() => setShowAdd(false)} 
-                  className="flex-1 px-6 py-4 rounded-md font-bold text-slate-500 hover:bg-slate-100 transition-all"
-                >
-                  Cancelar
-                </button>
-                <button 
-                  type="submit" 
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-md font-bold transition-all shadow-lg shadow-blue-500/20"
-                >
-                  Salvar Usuário
-                </button>
-              </div>
-            </form>
-          </div>
+          <UserRegistrationForm 
+            onClose={() => setShowAdd(false)} 
+            onSuccess={() => {
+              // Aqui você pode recarregar a lista de usuários se necessário
+              // ou o App.tsx pode estar ouvindo o Firestore via onSnapshot
+            }} 
+          />
         </div>
       )}
     </div>

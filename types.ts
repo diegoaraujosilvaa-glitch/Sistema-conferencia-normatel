@@ -1,4 +1,6 @@
 
+import { Timestamp } from 'firebase/firestore';
+
 export enum UserRole {
   CONFERENTE = 'CONFERENTE',
   SUPERVISOR = 'SUPERVISOR',
@@ -11,6 +13,7 @@ export interface User {
   username: string;
   role: UserRole;
   password?: string;
+  createdAt?: Timestamp;
 }
 
 export interface Branch {
