@@ -1,9 +1,8 @@
 
 import React, { useState } from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../src/lib/firebase';
 import { UserRole } from '../types';
 import { UserPlus, Save, X } from 'lucide-react';
+import { cadastrarUsuarioConferente } from '../src/services/userService';
 
 interface UserRegistrationFormProps {
   onClose?: () => void;
@@ -20,32 +19,16 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose, on
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Dados para envio
-    const userData = {
-      name: name.trim(),
-      username: username.trim().toLowerCase(),
-      role: role,
-      password: password, // Em um sistema real, a senha não seria salva assim no Firestore
-      createdAt: serverTimestamp()
-    };
-
-    // Console.log dos dados antes de enviar para garantir que não estão vazios
-    console.log("Dados a serem enviados para o Firestore:", userData);
-
-    // Validação simples antes do envio
-    if (!userData.name || !userData.username || !userData.role) {
-      alert("Erro: Campos obrigatórios não podem estar vazios.");
-      return;
-    }
-
     setLoading(true);
 
     try {
-      // Utilizando addDoc do Firebase Firestore
-      const docRef = await addDoc(collection(db, 'users'), userData);
-      console.log("Documento criado com ID:", docRef.id);
-      
-      alert("Usuário cadastrado com sucesso!");
+      // Utilizando a nova função de cadastro que resolve o problema de campos vazios e trata erros de permissão
+      await cadastrarUsuarioConferente({
+        name: name,
+        username: username,
+        role: role,
+        password: password
+      });
       
       // Limpar formulário
       setName('');
@@ -56,8 +39,8 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({ onClose, on
       if (onSuccess) onSuccess();
       if (onClose) onClose();
     } catch (error) {
-      console.error("Erro ao cadastrar usuário:", error);
-      alert("Erro ao cadastrar usuário. Verifique o console para mais detalhes.");
+      // O erro já é tratado dentro da função cadastrarUsuarioConferente com alertas
+      console.error("Erro no formulário de cadastro:", error);
     } finally {
       setLoading(false);
     }
