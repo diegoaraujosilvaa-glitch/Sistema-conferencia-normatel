@@ -12,7 +12,8 @@ import {
   X,
   AlertTriangle,
   History,
-  Zap
+  Zap,
+  ShieldCheck
 } from 'lucide-react';
 import { ConferenceBatch, NFeProduct } from '../types';
 
@@ -30,6 +31,7 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
   const [errorMsg, setErrorMsg] = useState('');
   const [lastScanned, setLastScanned] = useState<NFeProduct | null>(null);
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+  const [showDivergenceConfirm, setShowDivergenceConfirm] = useState(false);
   const [scanHistory, setScanHistory] = useState<NFeProduct[]>([]);
   
   const inputRef = useRef<HTMLInputElement>(null);
@@ -106,6 +108,16 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
     onUpdateBatch({ ...batch, products: updatedProducts });
   };
 
+  const handleFinishAttempt = () => {
+    const hasDivergence = batch.products.some(p => p.quantityExpected !== p.quantityChecked);
+    if (hasDivergence) {
+      playErrorSound();
+      setShowDivergenceConfirm(true);
+    } else {
+      onFinish();
+    }
+  };
+
   return (
     <div className="w-full max-w-7xl mx-auto flex flex-col h-full gap-4 lg:gap-8 pb-20 animate-in fade-in duration-500">
       
@@ -144,14 +156,21 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
               <div className="flex gap-3 lg:gap-4">
                 <div className="w-1/3">
                   <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Qtd</label>
-                  <input
-                    type="number"
-                    min="0.001"
-                    step="0.001"
-                    value={manualQty}
-                    onChange={(e) => setManualQty(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-slate-800 border-2 border-slate-700 rounded-md py-4 lg:py-5 px-4 lg:px-6 font-black text-xl lg:text-2xl text-center focus:outline-none focus:border-[#E66B27] text-white"
-                  />
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="0.001"
+                      step="0.001"
+                      value={manualQty}
+                      onChange={(e) => setManualQty(parseFloat(e.target.value) || 0)}
+                      className="w-full bg-slate-800 border-2 border-slate-700 rounded-md py-4 lg:py-5 px-4 lg:px-6 font-black text-xl lg:text-2xl text-center focus:outline-none focus:border-[#E66B27] text-white"
+                    />
+                    {lastScanned && (
+                      <span className="absolute -top-2 -right-2 bg-[#E66B27] text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-lg uppercase">
+                        {lastScanned.unit}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="flex-1 flex items-end">
                   <button 
@@ -270,9 +289,12 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
                           <p className="text-[9px] text-slate-400 font-mono mt-1 uppercase">COD: {p.code} <span className="mx-1.5 opacity-30">|</span> EAN: {p.ean}</p>
                         </td>
                         <td className="px-4 py-5 text-center">
-                          <span className="inline-block px-4 py-2 bg-orange-50 text-[#E66B27] rounded-md font-black text-sm min-w-[5rem] border border-orange-100/50 shadow-inner">
-                            {formatNumber(p.quantityChecked)}
-                          </span>
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="inline-block px-4 py-2 bg-orange-50 text-[#E66B27] rounded-md font-black text-sm min-w-[5rem] border border-orange-100/50 shadow-inner">
+                              {formatNumber(p.quantityChecked)}
+                            </span>
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{p.unit}</span>
+                          </div>
                         </td>
                         <td className="px-6 py-5 text-right">
                           <button 
@@ -302,9 +324,12 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
                     <div className="flex items-center gap-3 shrink-0">
                       <div className="flex flex-col items-center">
                         <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Conferido</span>
-                        <span className="inline-block px-3 py-2 bg-orange-50 text-[#E66B27] rounded-md font-black text-sm border border-orange-100/50 shadow-inner min-w-[4rem] text-center">
-                          {formatNumber(p.quantityChecked)}
-                        </span>
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="inline-block px-3 py-2 bg-orange-50 text-[#E66B27] rounded-md font-black text-sm border border-orange-100/50 shadow-inner min-w-[4rem] text-center">
+                            {formatNumber(p.quantityChecked)}
+                          </span>
+                          <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{p.unit}</span>
+                        </div>
                       </div>
                       <button 
                         onClick={() => removeItem(p.id)}
@@ -339,7 +364,7 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
                </div>
             </div>
             <button 
-              onClick={onFinish}
+              onClick={handleFinishAttempt}
               className="bg-[#E66B27] hover:bg-[#d55a1a] text-white px-4 lg:px-8 py-3 lg:py-4 rounded-md font-black uppercase tracking-[0.2em] text-[9px] lg:text-[10px] transition-all shadow-xl shadow-orange-500/20 flex items-center gap-2 lg:gap-3 transform hover:scale-105 active:scale-95"
             >
               Finalizar <span className="hidden sm:inline">Manifesto</span> <CheckCircle size={16} lg:size={18} />
@@ -372,6 +397,39 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
                 className="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 py-6 rounded-md font-black uppercase tracking-[0.2em] text-[10px] transition-all"
               >
                 Não, manter conferência
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmação de Divergência */}
+      {showDivergenceConfirm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/90 backdrop-blur-xl animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-md rounded-xl shadow-2xl p-12 animate-in zoom-in duration-300 text-center border border-white/10">
+            <div className="bg-orange-50 w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-10 text-orange-500 shadow-inner animate-pulse">
+              <AlertCircle size={56} />
+            </div>
+            <h3 className="text-3xl font-black text-slate-800 uppercase tracking-tighter mb-4 leading-tight">Divergência Detectada!</h3>
+            <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest leading-relaxed mb-12">
+              Existem diferenças entre o XML e o físico. O que deseja fazer?
+            </p>
+            
+            <div className="flex flex-col gap-4">
+              <button 
+                onClick={() => setShowDivergenceConfirm(false)}
+                className="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 py-6 rounded-md font-black uppercase tracking-[0.2em] text-[10px] transition-all flex items-center justify-center gap-3"
+              >
+                <History size={18} /> Voltar e Reconferir
+              </button>
+              <button 
+                onClick={() => {
+                  setShowDivergenceConfirm(false);
+                  onFinish();
+                }}
+                className="w-full bg-[#E66B27] hover:bg-[#d55a1a] text-white py-6 rounded-md font-black uppercase tracking-[0.2em] text-[10px] transition-all shadow-xl shadow-orange-500/20 flex items-center justify-center gap-3"
+              >
+                <ShieldCheck size={18} /> Enviar para Supervisor
               </button>
             </div>
           </div>

@@ -10,7 +10,8 @@ import {
   Search, 
   FilterX, 
   AlertTriangle,
-  X
+  X,
+  MapPin
 } from 'lucide-react';
 
 interface PausedBatchesProps {
@@ -30,7 +31,8 @@ const PausedBatches: React.FC<PausedBatchesProps> = ({ pausedBatches, onResume, 
     return pausedBatches.filter(batch => {
       const matchesNF = batch.notes.some(note => note.number.toLowerCase().includes(term));
       const matchesBatchId = batch.id.toLowerCase().includes(term);
-      return matchesNF || matchesBatchId;
+      const matchesBranch = batch.branchName?.toLowerCase().includes(term);
+      return matchesNF || matchesBatchId || matchesBranch;
     });
   }, [pausedBatches, searchTerm]);
 
@@ -60,7 +62,7 @@ const PausedBatches: React.FC<PausedBatchesProps> = ({ pausedBatches, onResume, 
         </div>
         <input 
           type="text"
-          placeholder="Pesquisar por número da Nota Fiscal (NF) ou ID do lote..."
+          placeholder="Pesquisar por NF, ID do lote ou Filial..."
           className="w-full bg-white border border-slate-200 rounded-2xl py-5 pl-14 pr-14 focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm transition-all font-medium text-slate-700"
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
@@ -103,13 +105,21 @@ const PausedBatches: React.FC<PausedBatchesProps> = ({ pausedBatches, onResume, 
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                   <div className="bg-blue-50/50 p-3 rounded-xl border border-blue-100">
                     <div className="flex items-center gap-2 text-blue-400 text-[10px] font-black uppercase tracking-widest mb-1">
                       <FileText size={12} /> Notas Fiscais (NF)
                     </div>
                     <p className="text-xs font-black text-blue-700 truncate">
                       {batch.notes.map(n => n.number).join(', ')}
+                    </p>
+                  </div>
+                  <div className="bg-orange-50/50 p-3 rounded-xl border border-orange-100">
+                    <div className="flex items-center gap-2 text-[#E66B27] text-[10px] font-black uppercase tracking-widest mb-1">
+                      <MapPin size={12} /> Filial de Destino
+                    </div>
+                    <p className="text-xs font-black text-[#E66B27] truncate">
+                      {batch.branchName || 'Não definida'}
                     </p>
                   </div>
                 </div>

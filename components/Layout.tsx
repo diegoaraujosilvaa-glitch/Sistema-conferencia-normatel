@@ -12,7 +12,9 @@ import {
   PauseCircle,
   Building2,
   Menu,
-  X
+  X,
+  AlertTriangle,
+  Activity
 } from 'lucide-react';
 import { User, UserRole } from '../types';
 
@@ -23,16 +25,20 @@ interface LayoutProps {
   setActiveTab: (tab: string) => void;
   children: React.ReactNode;
   pausedCount?: number;
+  discrepancyCount?: number;
 }
 
-const Layout: React.FC<LayoutProps> = ({ user, onLogout, activeTab, setActiveTab, children, pausedCount = 0 }) => {
+const Layout: React.FC<LayoutProps> = ({ user, onLogout, activeTab, setActiveTab, children, pausedCount = 0, discrepancyCount = 0 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: [UserRole.ADMIN, UserRole.SUPERVISOR, UserRole.CONFERENTE] },
-    { id: 'upload', label: 'Importar XML', icon: FileUp, roles: [UserRole.ADMIN, UserRole.SUPERVISOR, UserRole.CONFERENTE] },
-    { id: 'checking', label: 'Conferência', icon: ClipboardCheck, roles: [UserRole.ADMIN, UserRole.SUPERVISOR, UserRole.CONFERENTE] },
+    { id: 'upload', label: 'Importar XML', icon: FileUp, roles: [UserRole.ADMIN, UserRole.SUPERVISOR] },
+    { id: 'available', label: 'Lotes Disponíveis', icon: ClipboardCheck, roles: [UserRole.ADMIN, UserRole.SUPERVISOR, UserRole.CONFERENTE] },
+    { id: 'active_monitor', label: 'Em Progresso', icon: Activity, roles: [UserRole.ADMIN, UserRole.SUPERVISOR] },
+    { id: 'checking', label: 'Conferência Ativa', icon: PackageCheck, roles: [UserRole.ADMIN, UserRole.SUPERVISOR, UserRole.CONFERENTE] },
     { id: 'paused', label: 'Pausadas', icon: PauseCircle, roles: [UserRole.ADMIN, UserRole.SUPERVISOR, UserRole.CONFERENTE], badge: pausedCount },
+    { id: 'discrepancies', label: 'Divergências', icon: AlertTriangle, roles: [UserRole.ADMIN, UserRole.SUPERVISOR], badge: discrepancyCount },
     { id: 'history', label: 'Manifestos', icon: History, roles: [UserRole.ADMIN, UserRole.SUPERVISOR, UserRole.CONFERENTE] },
     { id: 'branches', label: 'Filiais', icon: Building2, roles: [UserRole.ADMIN, UserRole.SUPERVISOR] },
     { id: 'admin', label: 'Colaboradores', icon: Users, roles: [UserRole.ADMIN, UserRole.SUPERVISOR] },

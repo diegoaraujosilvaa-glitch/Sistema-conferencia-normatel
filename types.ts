@@ -29,6 +29,7 @@ export interface NFeProduct {
   description: string;
   quantityExpected: number;
   quantityChecked: number;
+  unit: string;
 }
 
 export interface NFeInfo {
@@ -36,6 +37,7 @@ export interface NFeInfo {
   accessKey: string;
   vendorCnpj: string;
   vendorName: string; // Nome extraído do XML (Emitente)
+  destCnpj: string;   // CNPJ do Destinatário
   emissionDate: string;
 }
 
@@ -45,9 +47,13 @@ export interface ConferenceBatch {
   products: NFeProduct[];
   startTime: string;
   endTime?: string;
-  status: 'OPEN' | 'IN_PROGRESS' | 'PAUSED' | 'PENDING_SUPERVISOR' | 'APPROVED' | 'REJECTED';
+  status: 'READY' | 'OPEN' | 'IN_PROGRESS' | 'PAUSED' | 'PENDING_SUPERVISOR' | 'APPROVED' | 'REJECTED';
   conferenteId: string;
   conferenteName: string;
+  creatorId?: string;
+  creatorName?: string;
+  branchId?: string;
+  branchName?: string;
   supervisorId?: string;
   supervisorName?: string;
   justification?: string;

@@ -7,9 +7,23 @@ import { ConferenceBatch } from '../../types';
  * Cadastra um novo lote de conferência no Firestore com validação rigorosa.
  */
 export const cadastrarConferenceBatch = async (batch: ConferenceBatch) => {
-  // VALIDAÇÃO CRÍTICA: Impede que o Firebase grave "" em campos essenciais
-  if (!batch.conferenteId || !batch.conferenteName || batch.notes.length === 0 || batch.products.length === 0) {
-    console.error("Erro: Lote de conferência incompleto.");
+  // VALIDAÇÃO CRÍTICA: Impede que o Firebase grave lotes sem dados
+  const hasData = batch.notes && batch.notes.length > 0 && batch.products && batch.products.length > 0;
+  
+  // No novo fluxo, lotes 'READY' não possuem conferenteId ainda.
+  // Validamos conferente apenas se o status NÃO for READY ou OPEN.
+  const needsConferente = batch.status !== 'READY' && batch.status !== 'OPEN';
+  const hasConferente = !!(batch.conferenteId && batch.conferenteName);
+
+  if (!hasData || (needsConferente && !hasConferente)) {
+    console.error("Erro: Lote de conferência incompleto.", { 
+      status: batch.status, 
+      hasData, 
+      needsConferente, 
+      hasConferente,
+      notesCount: batch.notes?.length,
+      productsCount: batch.products?.length
+    });
     alert("Erro: Dados do lote incompletos. Verifique os arquivos XML.");
     return;
   }

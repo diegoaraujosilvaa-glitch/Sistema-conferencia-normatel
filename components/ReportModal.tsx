@@ -176,6 +176,16 @@ const ReportModal: React.FC<ReportModalProps> = ({ batch, onClose }) => {
         doc.setTextColor(200, 0, 0);
         doc.setFont('helvetica', 'bold');
         doc.text(`• DIVERGÊNCIAS: ${totalDivergencias} ITENS`, margin + 55, finalY + 13);
+        
+        if (batch.supervisorName) {
+          doc.setTextColor(40, 40, 40);
+          doc.setFont('helvetica', 'normal');
+          doc.text(`• VALIDADO POR: ${batch.supervisorName.toUpperCase()}`, margin + 55, finalY + 17);
+          if (batch.justification) {
+            const splitJustification = doc.splitTextToSize(`• JUSTIFICATIVA: ${batch.justification.toUpperCase()}`, 40);
+            doc.text(splitJustification, margin + 55, finalY + 21);
+          }
+        }
       }
 
       const signY = pageHeight - 35;

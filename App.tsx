@@ -8,11 +8,13 @@ import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import XMLUpload from './components/XMLUpload';
 import BlindCheck from './components/BlindCheck';
-import SupervisorCheck from './components/SupervisorCheck';
 import AdminPanel from './components/AdminPanel';
 import BranchPanel from './components/BranchPanel';
 import ReportModal from './components/ReportModal';
 import PausedBatches from './components/PausedBatches';
+import AvailableBatches from './components/AvailableBatches';
+import DiscrepancyModule from './components/DiscrepancyModule';
+import ActiveConferences from './components/ActiveConferences';
 import { PackageCheck, ShieldCheck } from 'lucide-react';
 import { listenBranches } from './src/services/branchService';
 import { listenConferenceBatches, cadastrarConferenceBatch, atualizarConferenceBatch } from './src/services/conferenceService';
@@ -84,16 +86,17 @@ const App: React.FC = () => {
 
   // Update Dashboard Stats in Firestore when batches change
   useEffect(() => {
-    if (batches.length > 0) {
-      const totalConferences = batches.length;
-      const totalDivergences = batches.filter(b => 
+    const validBatches = batches.filter(b => b.status !== 'READY');
+    if (validBatches.length > 0) {
+      const totalConferences = validBatches.length;
+      const totalDivergences = validBatches.filter(b => 
         b.products.some(p => parseFloat(p.quantityExpected.toFixed(3)) !== parseFloat(p.quantityChecked.toFixed(3)))
       ).length;
       
       const accuracyRate = totalConferences > 0 ? ((totalConferences - totalDivergences) / totalConferences) * 100 : 100;
       
       const map: Record<string, { count: number, accuracy: number }> = {};
-      batches.forEach(b => {
+      validBatches.forEach(b => {
         if (!map[b.conferenteName]) map[b.conferenteName] = { count: 0, accuracy: 0 };
         map[b.conferenteName].count += 1;
         const hasDiv = b.products.some(p => parseFloat(p.quantityExpected.toFixed(3)) !== parseFloat(p.quantityChecked.toFixed(3)));
@@ -130,6 +133,14 @@ const App: React.FC = () => {
     return batches.filter(b => b.status === 'PAUSED');
   }, [batches]);
 
+  const activeBatches = useMemo(() => {
+    return batches.filter(b => b.status === 'IN_PROGRESS');
+  }, [batches]);
+
+  const pendingDiscrepancies = useMemo(() => {
+    return batches.filter(b => b.status === 'PENDING_SUPERVISOR');
+  }, [batches]);
+
   // Efeito para recuperar a conferência ativa do usuário logado ao iniciar
   useEffect(() => {
     if (user && batches.length > 0 && !currentBatch) {
@@ -141,25 +152,48 @@ const App: React.FC = () => {
     }
   }, [user, batches, currentBatch]);
 
-  const [isSupervisorView, setIsSupervisorView] = useState(false);
   const [viewingReport, setViewingReport] = useState<ConferenceBatch | null>(null);
 
   // Handlers
-  const startNewConference = async (batch: ConferenceBatch) => {
+  const handleCreateBatch = async (batch: ConferenceBatch) => {
+    try {
+      await cadastrarConferenceBatch(batch);
+      setActiveTab('available');
+    } catch (error) {
+      console.error("Erro ao criar lote de conferência:", error);
+    }
+  };
+
+  const handleSelectBatch = async (batch: ConferenceBatch) => {
+    if (!user) return;
+
+    // Verifica se o lote já está sendo conferido por outro usuário
+    const isAlreadyInProgress = batches.find(b => b.id === batch.id && b.status === 'IN_PROGRESS' && b.conferenteId !== user.id);
+    if (isAlreadyInProgress) {
+      alert(`Este lote já está sendo conferido por ${isAlreadyInProgress.conferenteName}.`);
+      return;
+    }
+
     try {
       // Se já houver uma ativa, pausa ela no Firestore primeiro
       if (currentBatch) {
         await atualizarConferenceBatch(currentBatch.id, { status: 'PAUSED' });
       }
       
-      // Inicia a nova no Firestore com status IN_PROGRESS
-      const batchToSave = { ...batch, status: 'IN_PROGRESS' as const };
-      await cadastrarConferenceBatch(batchToSave);
+      // Atribui o conferente e inicia no Firestore com status IN_PROGRESS
+      const updatedBatch = { 
+        ...batch, 
+        status: 'IN_PROGRESS' as const,
+        conferenteId: user.id,
+        conferenteName: user.name,
+        startTime: new Date().toISOString() // Reinicia o tempo ao começar de fato
+      };
+      await atualizarConferenceBatch(batch.id, updatedBatch);
       
-      setCurrentBatch(batchToSave);
+      setCurrentBatch(updatedBatch);
       setActiveTab('checking');
     } catch (error) {
-      console.error("Erro ao iniciar conferência:", error);
+      console.error("Erro ao selecionar lote:", error);
     }
   };
 
@@ -176,17 +210,39 @@ const App: React.FC = () => {
   };
 
   const handleResumeBatch = async (batchToResume: ConferenceBatch) => {
+    if (!user) return;
+
+    // Verifica se o lote já está sendo conferido por outro usuário
+    const isAlreadyInProgress = batches.find(b => b.id === batchToResume.id && b.status === 'IN_PROGRESS' && b.conferenteId !== user.id);
+    if (isAlreadyInProgress) {
+      alert(`Este lote já está sendo conferido por ${isAlreadyInProgress.conferenteName}.`);
+      return;
+    }
+
     try {
       if (currentBatch) {
-        if (window.confirm("Você possui uma conferência ativa agora. Deseja pausá-la para retomar esta?")) {
+        const confirmPause = window.confirm("Você possui uma conferência ativa agora. Deseja pausá-la para retomar esta?");
+        if (confirmPause) {
           await atualizarConferenceBatch(currentBatch.id, { status: 'PAUSED' });
-          await atualizarConferenceBatch(batchToResume.id, { status: 'IN_PROGRESS' });
-          setCurrentBatch({ ...batchToResume, status: 'IN_PROGRESS' });
+          const updatedBatch = { 
+            ...batchToResume, 
+            status: 'IN_PROGRESS' as const,
+            conferenteId: user.id,
+            conferenteName: user.name
+          };
+          await atualizarConferenceBatch(batchToResume.id, updatedBatch);
+          setCurrentBatch(updatedBatch);
           setActiveTab('checking');
         }
       } else {
-        await atualizarConferenceBatch(batchToResume.id, { status: 'IN_PROGRESS' });
-        setCurrentBatch({ ...batchToResume, status: 'IN_PROGRESS' });
+        const updatedBatch = { 
+          ...batchToResume, 
+          status: 'IN_PROGRESS' as const,
+          conferenteId: user.id,
+          conferenteName: user.name
+        };
+        await atualizarConferenceBatch(batchToResume.id, updatedBatch);
+        setCurrentBatch(updatedBatch);
         setActiveTab('checking');
       }
     } catch (error) {
@@ -218,7 +274,7 @@ const App: React.FC = () => {
       setUser(found);
       setLoginError('');
       if (currentBatch) setActiveTab('checking');
-      else if (found.role === UserRole.CONFERENTE) setActiveTab('upload');
+      else if (found.role === UserRole.CONFERENTE) setActiveTab('available');
       else setActiveTab('dashboard');
     } else {
       setLoginError('Credenciais inválidas.');
@@ -229,7 +285,6 @@ const App: React.FC = () => {
     setUser(null);
     setLoginForm({ username: '', password: '' });
     setLoginError('');
-    setIsSupervisorView(false);
     setActiveTab('dashboard');
     setViewingReport(null);
     setCurrentBatch(null);
@@ -238,52 +293,70 @@ const App: React.FC = () => {
   const finalizeConference = async () => {
     if (!currentBatch) return;
     const hasDivergence = currentBatch.products.some(p => p.quantityExpected !== p.quantityChecked);
-    if (hasDivergence) setIsSupervisorView(true);
-    else {
-      try {
-        const finalBatch = { ...currentBatch, status: 'APPROVED' as const, endTime: new Date().toISOString() };
+    
+    try {
+      if (hasDivergence) {
+        // Envia para o módulo de divergências
+        const pendingBatch = { 
+          ...currentBatch, 
+          status: 'PENDING_SUPERVISOR' as const, 
+          endTime: new Date().toISOString() 
+        };
+        await atualizarConferenceBatch(currentBatch.id, pendingBatch);
+        setCurrentBatch(null);
+        setActiveTab('available');
+      } else {
+        const finalBatch = { 
+          ...currentBatch, 
+          status: 'APPROVED' as const, 
+          endTime: new Date().toISOString() 
+        };
         await atualizarConferenceBatch(currentBatch.id, finalBatch);
         setCurrentBatch(null);
         setActiveTab('history');
         setViewingReport(finalBatch);
-      } catch (error) {
-        console.error("Erro ao finalizar conferência:", error);
       }
+    } catch (error) {
+      console.error("Erro ao finalizar conferência:", error);
     }
   };
 
-  const handleSupervisorApprove = async (supervisor: User, justification: string) => {
-    if (!currentBatch) return;
+  const handleDiscrepancyApprove = async (batch: ConferenceBatch, supervisor: User, justification: string) => {
     try {
       const finalBatch = { 
-        ...currentBatch, 
+        ...batch, 
         status: 'APPROVED' as const, 
-        endTime: new Date().toISOString(),
         supervisorId: supervisor.id,
         supervisorName: supervisor.name,
         justification
       };
-      await atualizarConferenceBatch(currentBatch.id, finalBatch);
-      setCurrentBatch(null);
-      setIsSupervisorView(false);
-      setActiveTab('history');
-      setViewingReport(finalBatch);
+      await atualizarConferenceBatch(batch.id, finalBatch);
     } catch (error) {
-      console.error("Erro ao aprovar conferência pelo supervisor:", error);
+      console.error("Erro ao aprovar divergência:", error);
+    }
+  };
+
+  const handleDiscrepancyReject = async (batch: ConferenceBatch) => {
+    try {
+      // Volta para conferência (status PAUSED)
+      await atualizarConferenceBatch(batch.id, { status: 'PAUSED' });
+    } catch (error) {
+      console.error("Erro ao rejeitar divergência:", error);
     }
   };
 
   // UI Logic
   let content;
-  if (isSupervisorView && currentBatch) {
-    content = <SupervisorCheck batch={currentBatch} users={users} onApprove={handleSupervisorApprove} onReject={() => { setIsSupervisorView(false); setActiveTab('checking'); }} />;
-  } else if (currentBatch && activeTab === 'checking') {
+  if (currentBatch && activeTab === 'checking') {
     content = <BlindCheck batch={currentBatch} onUpdateBatch={handleUpdateBatchProgress} onFinish={finalizeConference} onCancel={() => { deletePausedBatch(currentBatch.id); setCurrentBatch(null); setActiveTab('upload'); }} onPause={handlePauseActive} />;
   } else {
     switch (activeTab) {
       case 'dashboard': content = <Dashboard batches={batches} firestoreStats={stats} />; break;
-      case 'upload': content = <XMLUpload currentUser={user!} branches={branches} onStartConference={startNewConference} />; break;
+      case 'upload': content = <XMLUpload currentUser={user!} branches={branches} onCreateBatch={handleCreateBatch} />; break;
+      case 'available': content = <AvailableBatches batches={batches} onSelect={handleSelectBatch} onDelete={deletePausedBatch} userRole={user?.role} />; break;
+      case 'active_monitor': content = <ActiveConferences activeBatches={activeBatches} />; break;
       case 'paused': content = <PausedBatches pausedBatches={pausedBatches} onResume={handleResumeBatch} onDelete={deletePausedBatch} />; break;
+      case 'discrepancies': content = <DiscrepancyModule batches={batches} users={users} onApprove={handleDiscrepancyApprove} onReject={handleDiscrepancyReject} />; break;
       case 'history': content = (
         <div className="bg-white rounded-md shadow-sm border border-slate-100 overflow-hidden max-w-7xl mx-auto">
           <table className="w-full text-left">
@@ -292,7 +365,7 @@ const App: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-slate-50">
               {batches
-                .filter(b => !['IN_PROGRESS', 'PAUSED'].includes(b.status))
+                .filter(b => !['IN_PROGRESS', 'PAUSED', 'READY', 'PENDING_SUPERVISOR'].includes(b.status))
                 .map(b => (
                 <tr key={b.id} className="hover:bg-slate-50/50 group transition-colors">
                   <td className="px-6 py-4 text-xs font-bold text-slate-500">{new Date(b.endTime || b.startTime).toLocaleString('pt-BR')}</td>
@@ -306,7 +379,7 @@ const App: React.FC = () => {
                   </td>
                 </tr>
               ))}
-              {batches.filter(b => !['IN_PROGRESS', 'PAUSED'].includes(b.status)).length === 0 && (
+              {batches.filter(b => !['IN_PROGRESS', 'PAUSED', 'READY', 'PENDING_SUPERVISOR'].includes(b.status)).length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-6 py-20 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest opacity-40">Nenhum manifesto concluído</td>
                 </tr>
@@ -358,7 +431,14 @@ const App: React.FC = () => {
   }
 
   return (
-    <Layout user={user} onLogout={handleLogout} activeTab={activeTab} setActiveTab={setActiveTab} pausedCount={pausedBatches.length}>
+    <Layout 
+      user={user} 
+      onLogout={handleLogout} 
+      activeTab={activeTab} 
+      setActiveTab={setActiveTab} 
+      pausedCount={pausedBatches.length}
+      discrepancyCount={pendingDiscrepancies.length}
+    >
       {content}
       {viewingReport && <ReportModal batch={viewingReport} onClose={() => setViewingReport(null)} />}
     </Layout>

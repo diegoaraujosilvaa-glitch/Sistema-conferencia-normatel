@@ -34,6 +34,7 @@ const Dashboard: React.FC<DashboardProps> = ({ batches, firestoreStats }) => {
 
   const filteredBatches = useMemo(() => {
     return batches.filter(b => {
+      if (b.status === 'READY') return false;
       const bDate = (b.endTime || b.startTime).split('T')[0];
       return bDate >= startDate && bDate <= endDate;
     });
@@ -149,7 +150,7 @@ const Dashboard: React.FC<DashboardProps> = ({ batches, firestoreStats }) => {
           </div>
           
           <div className="h-[350px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <BarChart data={ranking.map(r => ({ name: r.name.split(' ')[0], qty: r.count }))}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 900}} dy={15} />

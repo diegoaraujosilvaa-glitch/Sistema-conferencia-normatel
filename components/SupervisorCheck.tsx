@@ -141,10 +141,17 @@ const SupervisorCheck: React.FC<SupervisorCheckProps> = ({ batch, users, onAppro
                       <p className="font-bold text-slate-800 text-sm">{p.description}</p>
                       <p className="text-xs text-slate-400 font-mono">{p.ean}</p>
                     </td>
-                    <td className="px-6 py-4 text-center font-black text-slate-600">{p.quantityExpected}</td>
-                    <td className="px-6 py-4 text-center font-black text-blue-600">{p.quantityChecked}</td>
+                    <td className="px-6 py-4 text-center font-black text-slate-600">
+                      {p.quantityExpected}
+                      <span className="block text-[8px] text-slate-400 uppercase">{p.unit}</span>
+                    </td>
+                    <td className="px-6 py-4 text-center font-black text-blue-600">
+                      {p.quantityChecked}
+                      <span className="block text-[8px] text-blue-400 uppercase">{p.unit}</span>
+                    </td>
                     <td className={`px-6 py-4 text-center font-black ${isSobra ? 'text-blue-600' : 'text-red-600'}`}>
                       {diff > 0 ? `+${diff}` : diff}
+                      <span className="block text-[8px] opacity-60 uppercase">{p.unit}</span>
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span className={`px-3 py-1 rounded text-[10px] font-black uppercase tracking-tighter ${isSobra ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}`}>
