@@ -55,8 +55,8 @@ const ActiveConferences: React.FC<ActiveConferencesProps> = ({ activeBatches }) 
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Conferências em Tempo Real</h2>
-          <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Monitoramento de produtividade e fluxo físico</p>
+          <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Conferências em Tempo Real</h2>
+          <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest mt-1">Monitoramento de produtividade e fluxo físico</p>
         </div>
         <div className="bg-blue-100 text-blue-600 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-200 flex items-center gap-2 shadow-sm">
           <Activity size={14} className="animate-pulse" /> {activeBatches.length} Ativas Agora
@@ -106,8 +106,8 @@ const ActiveConferences: React.FC<ActiveConferencesProps> = ({ activeBatches }) 
                     <UserIcon size={24} />
                   </div>
                   <div>
-                    <h4 className="font-black text-slate-800 uppercase tracking-tight text-sm">{batch.conferenteName}</h4>
-                    <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-0.5">ID: #{batch.id.split('-').pop()}</p>
+                    <h4 className="font-black text-slate-900 uppercase tracking-tight text-sm">{batch.conferenteName}</h4>
+                    <p className="text-[9px] text-slate-600 font-black uppercase tracking-widest mt-0.5">ID: #{batch.id.split('-').pop()}</p>
                   </div>
                 </div>
                 <div className="flex flex-col items-end">
@@ -120,29 +120,29 @@ const ActiveConferences: React.FC<ActiveConferencesProps> = ({ activeBatches }) 
 
               <div className="space-y-5 flex-1">
                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-2 flex items-center gap-2">
                     <Package size={12} className="text-[#E66B27]" /> Notas Fiscais
                   </p>
-                  <p className="text-xs font-black text-slate-700 truncate">
+                  <p className="text-xs font-black text-slate-900 truncate">
                     {batch.notes.map(n => n.number).join(' / ')}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">SKUs</p>
-                    <p className="text-sm font-black text-slate-800">{batch.products.length}</p>
+                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">SKUs</p>
+                    <p className="text-sm font-black text-slate-900">{batch.products.length}</p>
                   </div>
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Físico Lido</p>
+                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">Físico Lido</p>
                     <p className="text-sm font-black text-[#E66B27]">{totalChecked.toLocaleString('pt-BR')} un</p>
                   </div>
                 </div>
 
                 <div className="pt-2">
                   <div className="flex justify-between items-end mb-3">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Acuracidade Atual</p>
-                    <p className="text-xl font-black text-slate-800 tracking-tighter">{progress}%</p>
+                    <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Acuracidade Atual</p>
+                    <p className="text-xl font-black text-slate-900 tracking-tighter">{progress}%</p>
                   </div>
                   <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden shadow-inner">
                     <div 
@@ -156,7 +156,7 @@ const ActiveConferences: React.FC<ActiveConferencesProps> = ({ activeBatches }) 
               <div className="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Em Processamento</span>
+                  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Em Processamento</span>
                 </div>
                 <div className="flex items-center gap-1 text-[#E66B27]">
                   <TrendingUp size={14} />

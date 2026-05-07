@@ -122,7 +122,7 @@ const SupervisorCheck: React.FC<SupervisorCheckProps> = ({ batch, users, onAppro
 
         <div className="overflow-x-auto border border-slate-100 rounded-xl mb-8 shadow-sm">
           <table className="w-full text-left min-w-[600px]">
-            <thead className="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+            <thead className="bg-slate-50 text-slate-900 text-[10px] font-black uppercase tracking-widest">
               <tr>
                 <th className="px-6 py-4">Produto</th>
                 <th className="px-6 py-4 text-center">XML (Faturado)</th>
@@ -138,16 +138,16 @@ const SupervisorCheck: React.FC<SupervisorCheckProps> = ({ batch, users, onAppro
                 return (
                   <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4">
-                      <p className="font-bold text-slate-800 text-sm">{p.description}</p>
-                      <p className="text-xs text-slate-400 font-mono">{p.ean}</p>
+                      <p className="font-black text-slate-900 text-sm uppercase tracking-tight">{p.description}</p>
+                      <p className="text-[10px] text-slate-800 font-mono mt-1 opacity-80">EAN: {p.ean}</p>
                     </td>
-                    <td className="px-6 py-4 text-center font-black text-slate-600">
+                    <td className="px-6 py-4 text-center font-black text-slate-800">
                       {p.quantityExpected}
-                      <span className="block text-[8px] text-slate-400 uppercase">{p.unit}</span>
+                      <span className="block text-[9px] text-slate-600 font-black uppercase">{p.unit}</span>
                     </td>
-                    <td className="px-6 py-4 text-center font-black text-blue-600">
+                    <td className="px-6 py-4 text-center font-black text-blue-700">
                       {p.quantityChecked}
-                      <span className="block text-[8px] text-blue-400 uppercase">{p.unit}</span>
+                      <span className="block text-[9px] text-blue-800 font-black uppercase">{p.unit}</span>
                     </td>
                     <td className={`px-6 py-4 text-center font-black ${isSobra ? 'text-blue-600' : 'text-red-600'}`}>
                       {diff > 0 ? `+${diff}` : diff}
@@ -167,8 +167,8 @@ const SupervisorCheck: React.FC<SupervisorCheckProps> = ({ batch, users, onAppro
 
         <div className="space-y-4">
           <div className="flex items-center gap-2 ml-1">
-            <CheckCircle2 size={16} className="text-slate-400" />
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Justificativa da Liberação</label>
+            <CheckCircle2 size={16} className="text-slate-600" />
+            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Justificativa da Liberação</label>
           </div>
           <textarea
             autoFocus

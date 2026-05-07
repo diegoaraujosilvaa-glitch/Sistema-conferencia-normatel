@@ -44,8 +44,8 @@ const DiscrepancyModule: React.FC<DiscrepancyModuleProps> = ({ batches, users, o
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Módulo de Divergências</h2>
-          <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Validação e autorização de conferências com diferenças</p>
+          <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Módulo de Divergências</h2>
+          <p className="text-slate-600 text-xs font-bold uppercase tracking-widest mt-1">Validação e autorização de conferências com diferenças</p>
         </div>
         <div className="bg-red-100 text-red-600 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-red-200 flex items-center gap-2">
           <AlertTriangle size={14} /> {pendingBatches.length} Pendentes
@@ -63,23 +63,23 @@ const DiscrepancyModule: React.FC<DiscrepancyModuleProps> = ({ batches, users, o
                 <div className="bg-red-50 p-3 rounded-xl text-red-500 shadow-inner group-hover:scale-110 transition-transform">
                   <AlertTriangle size={24} />
                 </div>
-                <span className="text-[10px] font-black text-slate-400 bg-slate-50 px-3 py-1 rounded-full border border-slate-100 uppercase tracking-widest">
+                <span className="text-[10px] font-black text-slate-600 bg-slate-50 px-3 py-1 rounded-full border border-slate-100 uppercase tracking-widest">
                   #{batch.id.split('-').pop()}
                 </span>
               </div>
 
-              <h3 className="font-black text-slate-800 uppercase tracking-tight text-sm mb-4 line-clamp-1">
+              <h3 className="font-black text-slate-900 uppercase tracking-tight text-sm mb-4 line-clamp-1">
                 {batch.notes.map(n => n.number).join(' / ')}
               </h3>
 
               <div className="space-y-3 mb-6">
-                <div className="flex items-center gap-3 text-slate-500">
+                <div className="flex items-center gap-3 text-slate-800">
                   <UserIcon size={14} className="shrink-0" />
                   <p className="text-[10px] font-black uppercase tracking-widest truncate">
                     Conferente: {batch.conferenteName}
                   </p>
                 </div>
-                <div className="flex items-center gap-3 text-slate-500">
+                <div className="flex items-center gap-3 text-slate-800">
                   <Calendar size={14} className="shrink-0" />
                   <p className="text-[10px] font-bold uppercase tracking-widest">
                     Finalizado em: {new Date(batch.endTime || '').toLocaleString('pt-BR')}

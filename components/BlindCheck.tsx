@@ -247,8 +247,8 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
                 <Package size={18} lg:size={20} />
               </div>
               <div>
-                <h4 className="font-black text-slate-800 uppercase tracking-tight text-sm lg:text-base">Itens no Manifesto</h4>
-                <p className="text-[8px] lg:text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-0.5 lg:mt-1">Status de conferência física (SKU)</p>
+                <h4 className="font-black text-slate-900 uppercase tracking-tight text-sm lg:text-base">Itens no Manifesto</h4>
+                <p className="text-[8px] lg:text-[9px] text-slate-600 font-bold uppercase tracking-[0.2em] mt-0.5 lg:mt-1">Status de conferência física (SKU)</p>
               </div>
             </div>
             <div className="flex items-center gap-2 lg:gap-3 w-full sm:w-auto">
@@ -272,7 +272,7 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
             <div className="hidden lg:block">
               <table className="w-full text-left border-separate border-spacing-0">
                 <thead className="sticky top-0 bg-white/95 backdrop-blur-xl z-10 border-b border-slate-100">
-                  <tr className="text-slate-400 text-[10px] uppercase font-black tracking-[0.2em]">
+                  <tr className="text-slate-900 text-[10px] uppercase font-black tracking-[0.2em]">
                     <th className="px-6 py-5">Informação SKU</th>
                     <th className="px-4 py-5 text-center">Qtd</th>
                     <th className="px-6 py-5 text-right">Ações</th>
@@ -285,15 +285,19 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
                     .map((p) => (
                       <tr key={p.id} className="hover:bg-slate-50/50 transition-all group">
                         <td className="px-6 py-5">
-                          <p className="font-black text-slate-800 text-xs uppercase tracking-tight line-clamp-1">{p.description}</p>
-                          <p className="text-[9px] text-slate-400 font-mono mt-1 uppercase">COD: {p.code} <span className="mx-1.5 opacity-30">|</span> EAN: {p.ean}</p>
+                          <p className="font-black text-slate-900 text-xs lg:text-sm uppercase tracking-tight line-clamp-1">{p.description}</p>
+                          <p className="text-[10px] text-slate-800 font-mono mt-1.5 uppercase flex items-center gap-2">
+                             <span className="bg-slate-100 px-1.5 py-0.5 rounded text-[9px] font-black">COD: {p.code}</span>
+                             <span className="opacity-20">|</span>
+                             <span className="bg-slate-100 px-1.5 py-0.5 rounded text-[9px] font-black">EAN: {p.ean}</span>
+                          </p>
                         </td>
                         <td className="px-4 py-5 text-center">
                           <div className="flex flex-col items-center gap-1">
                             <span className="inline-block px-4 py-2 bg-orange-50 text-[#E66B27] rounded-md font-black text-sm min-w-[5rem] border border-orange-100/50 shadow-inner">
                               {formatNumber(p.quantityChecked)}
                             </span>
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{p.unit}</span>
+                            <span className="text-[9px] font-black text-slate-800 uppercase tracking-widest">{p.unit}</span>
                           </div>
                         </td>
                         <td className="px-6 py-5 text-right">
@@ -318,17 +322,20 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
                 .map((p) => (
                   <div key={p.id} className="p-4 flex items-center justify-between gap-3 hover:bg-slate-50/50 transition-all">
                     <div className="flex-1 min-w-0">
-                      <p className="font-black text-slate-800 text-[11px] uppercase tracking-tight truncate">{p.description}</p>
-                      <p className="text-[9px] text-slate-400 font-mono mt-1 uppercase">COD: {p.code} | EAN: {p.ean}</p>
+                      <p className="font-black text-slate-900 text-[11px] uppercase tracking-tight truncate">{p.description}</p>
+                      <p className="text-[10px] text-slate-800 font-mono mt-1.5 uppercase flex items-center gap-1.5 flex-wrap">
+                        <span className="bg-slate-100 px-1 py-0.5 rounded text-[9px] font-black">COD: {p.code}</span>
+                        <span className="bg-slate-100 px-1 py-0.5 rounded text-[9px] font-black">EAN: {p.ean}</span>
+                      </p>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
                       <div className="flex flex-col items-center">
-                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Conferido</span>
+                        <span className="text-[8px] font-black text-slate-700 uppercase tracking-widest mb-1">Conferido</span>
                         <div className="flex flex-col items-center gap-1">
                           <span className="inline-block px-3 py-2 bg-orange-50 text-[#E66B27] rounded-md font-black text-sm border border-orange-100/50 shadow-inner min-w-[4rem] text-center">
                             {formatNumber(p.quantityChecked)}
                           </span>
-                          <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{p.unit}</span>
+                          <span className="text-[8px] font-black text-slate-800 uppercase tracking-widest">{p.unit}</span>
                         </div>
                       </div>
                       <button 
