@@ -51,8 +51,8 @@ const SupervisorCheck: React.FC<SupervisorCheckProps> = ({ batch, users, onAppro
           <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
             <ShieldCheck className="text-orange-600" size={32} />
           </div>
-          <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Validação Requerida</h2>
-          <p className="text-slate-500 mt-2 text-sm font-medium">Apenas supervisores podem autorizar divergências.</p>
+          <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Validação Requerida</h2>
+          <p className="text-slate-700 mt-2 text-sm font-black uppercase tracking-widest">Apenas supervisores podem autorizar divergências.</p>
         </div>
 
         <div className="space-y-4">
@@ -63,7 +63,7 @@ const SupervisorCheck: React.FC<SupervisorCheckProps> = ({ batch, users, onAppro
 
           <div className="space-y-3">
             <div className="relative">
-              <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+              <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
               <input
                 type="text"
                 value={supervisorUser}
@@ -74,7 +74,7 @@ const SupervisorCheck: React.FC<SupervisorCheckProps> = ({ batch, users, onAppro
             </div>
 
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
               <input
                 type="password"
                 value={supervisorPass}
@@ -111,8 +111,8 @@ const SupervisorCheck: React.FC<SupervisorCheckProps> = ({ batch, users, onAppro
       <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
         <div className="flex justify-between items-start mb-8">
           <div>
-            <h2 className="text-2xl font-black text-slate-800 tracking-tight uppercase">Análise de Divergências</h2>
-            <p className="text-slate-500 font-medium">Validado por: <span className="text-orange-600 font-bold">{validatedUser.name}</span></p>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Análise de Divergências</h2>
+            <p className="text-slate-700 font-black uppercase tracking-widest text-[10px] mt-1">Validado por: <span className="text-orange-600">{validatedUser.name}</span></p>
           </div>
           <span className="bg-orange-100 text-orange-700 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
             <Info size={16} />
@@ -139,7 +139,7 @@ const SupervisorCheck: React.FC<SupervisorCheckProps> = ({ batch, users, onAppro
                   <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4">
                       <p className="font-black text-slate-900 text-sm uppercase tracking-tight">{p.description}</p>
-                      <p className="text-[10px] text-slate-800 font-mono mt-1 opacity-80">EAN: {p.ean}</p>
+                      <p className="text-[11px] text-slate-900 font-mono mt-1.5 font-black bg-slate-100 px-2 py-0.5 rounded border border-slate-200 inline-block">EAN: {p.ean}</p>
                     </td>
                     <td className="px-6 py-4 text-center font-black text-slate-800">
                       {p.quantityExpected}
@@ -168,7 +168,7 @@ const SupervisorCheck: React.FC<SupervisorCheckProps> = ({ batch, users, onAppro
         <div className="space-y-4">
           <div className="flex items-center gap-2 ml-1">
             <CheckCircle2 size={16} className="text-slate-600" />
-            <label className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Justificativa da Liberação</label>
+            <label className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Justificativa da Liberação</label>
           </div>
           <textarea
             autoFocus

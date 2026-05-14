@@ -130,11 +130,11 @@ const ActiveConferences: React.FC<ActiveConferencesProps> = ({ activeBatches }) 
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">SKUs</p>
+                    <p className="text-[9px] font-black text-slate-800 uppercase tracking-widest mb-1">SKUs</p>
                     <p className="text-sm font-black text-slate-900">{batch.products.length}</p>
                   </div>
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1">Físico Lido</p>
+                    <p className="text-[9px] font-black text-slate-800 uppercase tracking-widest mb-1">Físico Lido</p>
                     <p className="text-sm font-black text-[#E66B27]">{totalChecked.toLocaleString('pt-BR')} un</p>
                   </div>
                 </div>

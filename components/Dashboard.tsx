@@ -62,10 +62,11 @@ const Dashboard: React.FC<DashboardProps> = ({ batches, firestoreStats }) => {
   }, [filteredBatches]);
 
   const ranking = useMemo(() => {
-    const map: Record<string, { count: number, accuracy: number }> = {};
+    const map: Record<string, { count: number, accuracy: number, skus: number }> = {};
     filteredBatches.forEach(b => {
-      if (!map[b.conferenteName]) map[b.conferenteName] = { count: 0, accuracy: 0 };
+      if (!map[b.conferenteName]) map[b.conferenteName] = { count: 0, accuracy: 0, skus: 0 };
       map[b.conferenteName].count += 1;
+      map[b.conferenteName].skus += b.products.length;
       const hasDiv = b.products.some(p => parseFloat(p.quantityExpected.toFixed(3)) !== parseFloat(p.quantityChecked.toFixed(3)));
       if (!hasDiv) map[b.conferenteName].accuracy += 1;
     });
@@ -74,6 +75,7 @@ const Dashboard: React.FC<DashboardProps> = ({ batches, firestoreStats }) => {
       .map(([name, data]) => ({
         name,
         count: data.count,
+        skus: data.skus,
         rate: (data.accuracy / data.count) * 100
       }))
       .sort((a, b) => b.count - a.count)
@@ -86,7 +88,7 @@ const Dashboard: React.FC<DashboardProps> = ({ batches, firestoreStats }) => {
       <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-100 flex flex-col md:flex-row items-end gap-6">
         <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
           <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5 ml-1 flex items-center gap-2">
+            <label className="block text-[10px] font-black text-slate-800 uppercase tracking-widest mb-2.5 ml-1 flex items-center gap-2">
               <Calendar size={14} className="text-[#E66B27]" /> Período Inicial
             </label>
             <input 
@@ -97,7 +99,7 @@ const Dashboard: React.FC<DashboardProps> = ({ batches, firestoreStats }) => {
             />
           </div>
           <div>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2.5 ml-1 flex items-center gap-2">
+            <label className="block text-[10px] font-black text-slate-800 uppercase tracking-widest mb-2.5 ml-1 flex items-center gap-2">
               <Calendar size={14} className="text-[#E66B27]" /> Período Final
             </label>
             <input 
@@ -130,8 +132,8 @@ const Dashboard: React.FC<DashboardProps> = ({ batches, firestoreStats }) => {
               </div>
               <TrendingUp size={16} className="text-slate-200" />
             </div>
-            <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">{stat.label}</p>
-            <p className="text-4xl font-black text-slate-800 mt-2 tracking-tighter">{stat.value}</p>
+            <p className="text-slate-800 text-[10px] font-black uppercase tracking-[0.2em]">{stat.label}</p>
+            <p className="text-4xl font-black text-slate-900 mt-2 tracking-tighter">{stat.value}</p>
           </div>
         ))}
       </div>
@@ -145,22 +147,23 @@ const Dashboard: React.FC<DashboardProps> = ({ batches, firestoreStats }) => {
                 <div className="w-2 h-2 rounded-full bg-[#E66B27]"></div>
                 Volume de Conferência
               </h3>
-              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Produtividade operacional por colaborador</p>
+              <p className="text-slate-700 text-[10px] font-bold uppercase tracking-widest mt-1">Produtividade operacional por colaborador</p>
             </div>
           </div>
           
           <div className="h-[350px] w-full">
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-              <BarChart data={ranking.map(r => ({ name: r.name.split(' ')[0], qty: r.count }))}>
+              <BarChart data={ranking.map(r => ({ name: r.name.split(' ')[0], manifestos: r.count, skus: r.skus }))}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 900}} dy={15} />
                 <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 900}} />
                 <Tooltip 
                    cursor={{fill: '#fff7ed', radius: 12}} 
                    contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '16px' }} 
-                   itemStyle={{ color: '#E66B27', fontWeight: 900, fontSize: '12px', textTransform: 'uppercase' }}
+                   itemStyle={{ fontWeight: 900, fontSize: '12px', textTransform: 'uppercase' }}
                 />
-                <Bar dataKey="qty" fill="#E66B27" radius={[12, 12, 12, 12]} barSize={40} />
+                <Bar dataKey="manifestos" fill="#E66B27" radius={[12, 12, 12, 12]} barSize={25} />
+                <Bar dataKey="skus" fill="#94a3b8" radius={[12, 12, 12, 12]} barSize={25} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -195,9 +198,15 @@ const Dashboard: React.FC<DashboardProps> = ({ batches, firestoreStats }) => {
                     </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-xl font-black text-slate-800 group-hover:text-[#E66B27] transition-colors">{item.count}</p>
-                  <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest">Manifestos</p>
+                <div className="text-right flex flex-col items-end gap-1">
+                  <div className="flex items-baseline gap-1">
+                    <p className="text-xl font-black text-slate-800 group-hover:text-[#E66B27] transition-colors">{item.count}</p>
+                    <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest">Manif.</p>
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <p className="text-lg font-black text-slate-600">{item.skus}</p>
+                    <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest">SKUs</p>
+                  </div>
                 </div>
               </div>
             ))}

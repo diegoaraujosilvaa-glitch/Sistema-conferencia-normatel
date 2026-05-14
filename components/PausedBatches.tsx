@@ -92,8 +92,8 @@ const PausedBatches: React.FC<PausedBatchesProps> = ({ pausedBatches, onResume, 
                       <Clock className="text-orange-500" size={24} />
                     </div>
                     <div>
-                      <h4 className="font-black text-slate-800 uppercase tracking-tight">Lote #{batch.id}</h4>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Pausado em {new Date(batch.startTime).toLocaleString('pt-BR')}</p>
+                      <h4 className="font-black text-slate-900 uppercase tracking-tight">Lote #{batch.id}</h4>
+                      <p className="text-[10px] text-slate-800 font-bold uppercase tracking-widest">Pausado em {new Date(batch.startTime).toLocaleString('pt-BR')}</p>
                     </div>
                   </div>
                   <button 
@@ -126,21 +126,21 @@ const PausedBatches: React.FC<PausedBatchesProps> = ({ pausedBatches, onResume, 
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                    <div className="flex items-center gap-2 text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">
+                    <div className="flex items-center gap-2 text-slate-900 text-[10px] font-black uppercase tracking-widest mb-1">
                       <Package size={12} /> SKUs
                     </div>
-                    <p className="text-xs font-bold text-slate-700">{batch.products.length} Itens</p>
+                    <p className="text-xs font-bold text-slate-900">{batch.products.length} Itens</p>
                   </div>
                   <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                    <div className="flex items-center gap-2 text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">
+                    <div className="flex items-center gap-2 text-slate-900 text-[10px] font-black uppercase tracking-widest mb-1">
                       <Clock size={12} /> Responsável
                     </div>
-                    <p className="text-xs font-bold text-slate-700 truncate">{batch.conferenteName}</p>
+                    <p className="text-xs font-bold text-slate-900 truncate">{batch.conferenteName}</p>
                   </div>
                 </div>
 
                 <div className="space-y-2 mb-6">
-                  <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  <div className="flex justify-between text-[10px] font-black text-slate-800 uppercase tracking-widest">
                     <span>Progresso Salvo</span>
                     <span>{progress}%</span>
                   </div>

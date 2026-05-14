@@ -108,8 +108,8 @@ const DiscrepancyModule: React.FC<DiscrepancyModuleProps> = ({ batches, users, o
             <div className="bg-green-50 p-8 rounded-full mb-6 text-green-500">
               <CheckCircle2 size={48} />
             </div>
-            <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">Tudo em conformidade</h3>
-            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2 max-w-xs leading-relaxed">
+            <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Tudo em conformidade</h3>
+            <p className="text-slate-700 text-[10px] font-bold uppercase tracking-widest mt-2 max-w-xs leading-relaxed">
               Não existem conferências pendentes de validação de supervisor no momento.
             </p>
           </div>

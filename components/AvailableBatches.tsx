@@ -27,7 +27,7 @@ const AvailableBatches: React.FC<AvailableBatchesProps> = ({ batches, onSelect, 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Lotes Disponíveis</h2>
-          <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Selecione um manifesto para iniciar a conferência</p>
+          <p className="text-slate-800 text-xs font-black uppercase tracking-widest mt-1">Selecione um manifesto para iniciar a conferência</p>
         </div>
         <div className="bg-orange-100 text-[#E66B27] px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-orange-200">
           {availableBatches.length} Lotes Aguardando
@@ -58,7 +58,7 @@ const AvailableBatches: React.FC<AvailableBatchesProps> = ({ batches, onSelect, 
                       <Trash2 size={14} />
                     </button>
                   )}
-                  <span className="text-[10px] font-black text-slate-400 bg-slate-50 px-3 py-1 rounded-full border border-slate-100 uppercase tracking-widest">
+                  <span className="text-[10px] font-black text-slate-800 bg-slate-50 px-3 py-1 rounded-full border border-slate-100 uppercase tracking-widest">
                     #{batch.id.split('-').pop()}
                   </span>
                 </div>
@@ -75,19 +75,19 @@ const AvailableBatches: React.FC<AvailableBatchesProps> = ({ batches, onSelect, 
                     Filial: {batch.branchName || 'Não definida'}
                   </p>
                 </div>
-                <div className="flex items-center gap-3 text-slate-500">
+                <div className="flex items-center gap-3 text-slate-800">
                   <Building2 size={14} className="shrink-0" />
                   <p className="text-[10px] font-bold uppercase tracking-widest truncate">
                     Fornecedor: {batch.notes[0]?.vendorName || 'Fornecedor não identificado'}
                   </p>
                 </div>
-                <div className="flex items-center gap-3 text-slate-500">
+                <div className="flex items-center gap-3 text-slate-800">
                   <Package size={14} className="shrink-0" />
                   <p className="text-[10px] font-bold uppercase tracking-widest">
                     {batch.products.length} SKUs • {batch.products.reduce((acc, p) => acc + p.quantityExpected, 0)} Itens
                   </p>
                 </div>
-                <div className="flex items-center gap-3 text-slate-500">
+                <div className="flex items-center gap-3 text-slate-800">
                   <Calendar size={14} className="shrink-0" />
                   <p className="text-[10px] font-bold uppercase tracking-widest">
                     Criado em: {new Date(batch.startTime).toLocaleDateString('pt-BR')}

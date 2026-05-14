@@ -137,7 +137,7 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
             
             <form onSubmit={handleScan} className="space-y-6 lg:space-y-8 relative z-10">
               <div>
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">EAN ou Código Interno</label>
+                <label className="block text-[10px] font-black text-slate-800 uppercase tracking-[0.2em] mb-3 ml-1">EAN ou Código Interno</label>
                 <div className="relative">
                   <input
                     ref={inputRef}
@@ -155,7 +155,7 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
 
               <div className="flex gap-3 lg:gap-4">
                 <div className="w-1/3">
-                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Qtd</label>
+                  <label className="block text-[10px] font-black text-slate-800 uppercase tracking-[0.2em] mb-3 ml-1">Qtd</label>
                   <div className="relative">
                     <input
                       type="number"
@@ -196,11 +196,11 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
              <div className="absolute top-0 left-0 w-1.5 h-full bg-[#E66B27] group-hover:w-2 transition-all"></div>
             <div className="flex justify-between items-end mb-4 lg:mb-6">
               <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Acuracidade Lote</p>
-                <h3 className="text-2xl lg:text-4xl font-black text-slate-800 tracking-tighter mt-1">{progress}%</h3>
+                <p className="text-[10px] font-black text-slate-700 uppercase tracking-[0.2em]">Acuracidade Lote</p>
+                <h3 className="text-2xl lg:text-4xl font-black text-slate-900 tracking-tighter mt-1">{progress}%</h3>
               </div>
               <div className="text-right">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Fluxo Físico</p>
+                <p className="text-[10px] font-black text-slate-700 uppercase tracking-[0.2em]">Fluxo Físico</p>
                 <p className="text-xs lg:text-sm font-black text-[#E66B27] mt-1">{formatNumber(totalChecked)} / {formatNumber(totalExpected)}</p>
               </div>
             </div>
@@ -214,7 +214,7 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
 
           {/* Histórico Local - Escondido em telas muito pequenas para economizar espaço se necessário, ou reduzido */}
           <div className="bg-white p-6 lg:p-8 rounded-xl border border-slate-100 shadow-sm flex flex-col hidden sm:flex">
-            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4 lg:mb-6 flex items-center gap-3">
+            <h4 className="text-[10px] font-black text-slate-700 uppercase tracking-[0.3em] mb-4 lg:mb-6 flex items-center gap-3">
               <History size={16} className="text-[#E66B27]" /> Últimas Leituras
             </h4>
             <div className="space-y-3 lg:space-y-4 overflow-y-auto max-h-[200px] lg:max-h-[300px] pr-2 report-scrollbar">
@@ -222,7 +222,7 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
                 <div key={idx} className={`p-4 lg:p-5 rounded-md bg-slate-50 border border-slate-100 shadow-sm flex justify-between items-center animate-in slide-in-from-left-4 duration-500 opacity-${100 - (idx * 20)}`}>
                   <div className="max-w-[70%] lg:max-w-[75%]">
                     <p className="text-[9px] lg:text-[10px] font-black text-slate-800 uppercase truncate leading-none">{item.description}</p>
-                    <p className="text-[8px] lg:text-[9px] text-slate-400 font-bold uppercase mt-1 lg:mt-1.5 tracking-widest">{item.ean}</p>
+                    <p className="text-[8px] lg:text-[9px] text-slate-800 font-bold uppercase mt-1 lg:mt-1.5 tracking-widest">{item.ean}</p>
                   </div>
                   <div className="bg-orange-50 px-2 lg:px-3 py-1 lg:py-1.5 rounded-xl text-[8px] lg:text-[9px] font-black text-[#E66B27] border border-orange-100">
                     BIP
@@ -248,7 +248,7 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
               </div>
               <div>
                 <h4 className="font-black text-slate-900 uppercase tracking-tight text-sm lg:text-base">Itens no Manifesto</h4>
-                <p className="text-[8px] lg:text-[9px] text-slate-600 font-bold uppercase tracking-[0.2em] mt-0.5 lg:mt-1">Status de conferência física (SKU)</p>
+                <p className="text-[8px] lg:text-[9px] text-slate-900 font-bold uppercase tracking-[0.2em] mt-0.5 lg:mt-1">Status de conferência física (SKU)</p>
               </div>
             </div>
             <div className="flex items-center gap-2 lg:gap-3 w-full sm:w-auto">
@@ -289,7 +289,7 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
                           <p className="text-[10px] text-slate-800 font-mono mt-1.5 uppercase flex items-center gap-2">
                              <span className="bg-slate-100 px-1.5 py-0.5 rounded text-[9px] font-black">COD: {p.code}</span>
                              <span className="opacity-20">|</span>
-                             <span className="bg-slate-100 px-1.5 py-0.5 rounded text-[9px] font-black">EAN: {p.ean}</span>
+                             <span className="bg-slate-100 px-2 py-0.5 rounded text-[11px] font-black text-slate-900 border border-slate-200 shadow-sm leading-none">EAN: {p.ean}</span>
                           </p>
                         </td>
                         <td className="px-4 py-5 text-center">
@@ -325,7 +325,7 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
                       <p className="font-black text-slate-900 text-[11px] uppercase tracking-tight truncate">{p.description}</p>
                       <p className="text-[10px] text-slate-800 font-mono mt-1.5 uppercase flex items-center gap-1.5 flex-wrap">
                         <span className="bg-slate-100 px-1 py-0.5 rounded text-[9px] font-black">COD: {p.code}</span>
-                        <span className="bg-slate-100 px-1 py-0.5 rounded text-[9px] font-black">EAN: {p.ean}</span>
+                        <span className="bg-slate-100 px-1.5 py-0.5 rounded text-[10px] font-black text-slate-900 border border-slate-200 shadow-sm leading-none">EAN: {p.ean}</span>
                       </p>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
