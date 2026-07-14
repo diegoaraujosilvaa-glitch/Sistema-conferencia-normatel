@@ -139,7 +139,10 @@ const SupervisorCheck: React.FC<SupervisorCheckProps> = ({ batch, users, onAppro
                   <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4">
                       <p className="font-black text-slate-900 text-sm uppercase tracking-tight">{p.description}</p>
-                      <p className="text-[11px] text-slate-900 font-mono mt-1.5 font-black bg-slate-100 px-2 py-0.5 rounded border border-slate-200 inline-block">EAN: {p.ean}</p>
+                      <p className="text-[10px] text-slate-800 font-mono mt-1.5 uppercase flex items-center gap-1.5 flex-wrap">
+                        <span className="bg-slate-100 px-1.5 py-0.5 rounded text-[9px] font-black">COD: {p.code}</span>
+                        <span className="bg-slate-100 px-2 py-0.5 rounded text-[11px] font-black text-slate-900 border border-slate-200 shadow-sm leading-none">EAN: {p.ean}</span>
+                      </p>
                     </td>
                     <td className="px-6 py-4 text-center font-black text-slate-800">
                       {p.quantityExpected}
