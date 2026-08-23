@@ -68,62 +68,13 @@ const App: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
-  // Sync Batches from Firestore
+  // Sync Batches from Firestore (limitado aos mais recentes para economizar cota)
   useEffect(() => {
     const unsubscribe = listenConferenceBatches((data) => {
       setBatches(data);
     });
     return () => unsubscribe();
   }, []);
-
-  // Sync Stats from Firestore
-  useEffect(() => {
-    const unsubscribe = listenDashboardStats((data) => {
-      setStats(data);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  // Update Dashboard Stats in Firestore when batches change
-  useEffect(() => {
-    const validBatches = batches.filter(b => b.status !== 'READY');
-    if (validBatches.length > 0) {
-      const totalConferences = validBatches.length;
-      const totalDivergences = validBatches.filter(b => 
-        b.products.some(p => parseFloat(p.quantityExpected.toFixed(3)) !== parseFloat(p.quantityChecked.toFixed(3)))
-      ).length;
-      
-      const accuracyRate = totalConferences > 0 ? ((totalConferences - totalDivergences) / totalConferences) * 100 : 100;
-      
-      const map: Record<string, { count: number, accuracy: number }> = {};
-      validBatches.forEach(b => {
-        if (!map[b.conferenteName]) map[b.conferenteName] = { count: 0, accuracy: 0 };
-        map[b.conferenteName].count += 1;
-        const hasDiv = b.products.some(p => parseFloat(p.quantityExpected.toFixed(3)) !== parseFloat(p.quantityChecked.toFixed(3)));
-        if (!hasDiv) map[b.conferenteName].accuracy += 1;
-      });
-
-      const ranking = Object.entries(map)
-        .map(([name, data]) => ({
-          name,
-          score: (data.accuracy / data.count) * 100
-        }))
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 5);
-
-      const newStats: DashboardStats = {
-        totalConferences,
-        discrepancyRate: 100 - accuracyRate,
-        averageTime: "Calculando...", // Poderia ser calculado se tivéssemos startTime e endTime como Timestamps
-        conferenteRanking: ranking
-      };
-
-      // Importar e chamar a função de atualização
-      import('./src/services/statsService').then(({ atualizarDashboardStats }) => {
-        atualizarDashboardStats(newStats).catch(err => console.error("Erro ao atualizar estatísticas globais:", err));
-      });
-    }
-  }, [batches]);
   
   // Lote Ativo (Sincronizado com Firestore)
   const [currentBatch, setCurrentBatch] = useState<ConferenceBatch | null>(null);
@@ -200,9 +151,12 @@ const App: React.FC = () => {
   const handlePauseActive = async () => {
     if (currentBatch) {
       try {
-        await atualizarConferenceBatch(currentBatch.id, { status: 'PAUSED' });
+        await atualizarConferenceBatch(currentBatch.id, { 
+          status: 'PAUSED',
+          products: currentBatch.products 
+        });
         setCurrentBatch(null);
-        setActiveTab('upload');
+        setActiveTab('available');
       } catch (error) {
         console.error("Erro ao pausar conferência:", error);
       }

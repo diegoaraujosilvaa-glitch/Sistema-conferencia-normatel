@@ -13,7 +13,8 @@ import {
   AlertTriangle,
   History,
   Zap,
-  ShieldCheck
+  ShieldCheck,
+  Check
 } from 'lucide-react';
 import { ConferenceBatch, NFeProduct } from '../types';
 
@@ -38,7 +39,35 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, []);
+
+    // Recupera backup do localStorage se houver progresso não sincronizado
+    try {
+      const backupRaw = localStorage.getItem(`blind_check_backup_${batch.id}`);
+      if (backupRaw) {
+        const backup = JSON.parse(backupRaw);
+        if (backup.products && Array.isArray(backup.products)) {
+          const totalCheckedBackup = backup.products.reduce((acc: number, p: NFeProduct) => acc + (p.quantityChecked || 0), 0);
+          const totalCheckedCurrent = batch.products.reduce((acc, p) => acc + (p.quantityChecked || 0), 0);
+          if (totalCheckedBackup > totalCheckedCurrent) {
+            onUpdateBatch({ ...batch, products: backup.products });
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Aviso ao ler backup local:", e);
+    }
+
+    const handleBeforeUnload = () => {
+      import('../src/services/conferenceService').then(({ flushProgressoConferencia }) => {
+        flushProgressoConferencia(batch.id);
+      });
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [batch.id]);
 
   const totalExpected = batch.products.reduce((acc, p) => acc + p.quantityExpected, 0);
   const totalChecked = batch.products.reduce((acc, p) => acc + p.quantityChecked, 0);
@@ -248,7 +277,12 @@ const BlindCheck: React.FC<BlindCheckProps> = ({ batch, onUpdateBatch, onFinish,
               </div>
               <div>
                 <h4 className="font-black text-slate-900 uppercase tracking-tight text-sm lg:text-base">Itens no Manifesto</h4>
-                <p className="text-[8px] lg:text-[9px] text-slate-900 font-bold uppercase tracking-[0.2em] mt-0.5 lg:mt-1">Status de conferência física (SKU)</p>
+                <div className="flex items-center gap-2 mt-0.5 lg:mt-1">
+                  <p className="text-[8px] lg:text-[9px] text-slate-900 font-bold uppercase tracking-[0.2em]">Status de conferência física (SKU)</p>
+                  <span className="inline-flex items-center gap-1 text-[8px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded font-black uppercase tracking-wider border border-emerald-200/60">
+                    <ShieldCheck size={10} /> Auto-Sync Ativo
+                  </span>
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-2 lg:gap-3 w-full sm:w-auto">
