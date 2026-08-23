@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  Cell, PieChart, Pie
+  Cell, PieChart, Pie, LabelList
 } from 'recharts';
 import { ConferenceBatch, UserRole, DashboardStats } from '../types';
 import { 
@@ -157,17 +157,38 @@ const Dashboard: React.FC<DashboardProps> = ({ batches, firestoreStats }) => {
             
             <div className="h-[380px] w-full">
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                <BarChart data={ranking.map(r => ({ name: r.name.split(' ')[0], manifestos: r.count, skus: r.skus }))}>
+                <BarChart 
+                  data={ranking.map(r => ({ name: r.name.split(' ')[0], manifestos: r.count, skus: r.skus }))}
+                  margin={{ top: 25, right: 10, left: -15, bottom: 5 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10, fontWeight: 900}} dy={10} interval={0} />
-                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10, fontWeight: 900}} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10, fontWeight: 900}} domain={[0, (dataMax: number) => Math.max(10, Math.ceil(dataMax * 1.25))]} />
                   <Tooltip 
                      cursor={{fill: '#fff7ed', radius: 12}} 
                      contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '16px' }} 
                      itemStyle={{ fontWeight: 900, fontSize: '12px', textTransform: 'uppercase' }}
                   />
-                  <Bar dataKey="skus" name="SKUs" fill="#94a3b8" radius={[8, 8, 0, 0]} barSize={22} />
-                  <Bar dataKey="manifestos" name="Manifestos" fill="#E66B27" radius={[8, 8, 0, 0]} barSize={22} />
+                  <Bar dataKey="skus" name="SKUs" fill="#94a3b8" radius={[8, 8, 0, 0]} barSize={22}>
+                    <LabelList 
+                      dataKey="skus" 
+                      position="top" 
+                      fill="#475569" 
+                      fontSize={10} 
+                      fontWeight={900} 
+                      offset={6}
+                    />
+                  </Bar>
+                  <Bar dataKey="manifestos" name="Manifestos" fill="#E66B27" radius={[8, 8, 0, 0]} barSize={22}>
+                    <LabelList 
+                      dataKey="manifestos" 
+                      position="top" 
+                      fill="#E66B27" 
+                      fontSize={10} 
+                      fontWeight={900} 
+                      offset={6} 
+                    />
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
