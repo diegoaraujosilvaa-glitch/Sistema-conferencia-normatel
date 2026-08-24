@@ -56,7 +56,7 @@ const Dashboard: React.FC<DashboardProps> = ({ batches, firestoreStats }) => {
     return [
       { label: 'Manifestos Concluídos', value: totalConferences, icon: ClipboardCheck, color: 'text-orange-600', bg: 'bg-orange-50' },
       { label: 'SKUs Conferidos', value: totalItems, icon: Package, color: 'text-slate-600', bg: 'bg-slate-100' },
-      { label: 'Acuracidade Geral', value: `${accuracyRate.toFixed(1)}%`, icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-50' },
+      { label: 'Acuracidade', value: `${accuracyRate.toFixed(1)}%`, icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-50' },
       { label: 'Lotes Divergentes', value: totalDivergences, icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-50' },
     ];
   }, [filteredBatches]);
