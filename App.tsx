@@ -357,7 +357,7 @@ const App: React.FC = () => {
             <div className="bg-[#E66B27] w-16 h-16 rounded-md flex items-center justify-center mx-auto mb-6 shadow-xl shadow-orange-500/20">
               <PackageCheck className="text-white" size={40} />
             </div>
-            <h1 className="text-2xl font-black text-slate-800 tracking-tight leading-tight uppercase">Normatel Home Center</h1>
+            <h1 className="text-2xl font-black text-slate-800 tracking-tight leading-tight uppercase">Conferencia Home Center</h1>
             <p className="text-[#E66B27] text-[10px] font-black uppercase tracking-[0.3em] mt-1">Sistema de Conferência</p>
           </div>
           <div className="p-10">

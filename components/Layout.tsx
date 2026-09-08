@@ -69,7 +69,7 @@ const Layout: React.FC<LayoutProps> = ({ user, onLogout, activeTab, setActiveTab
           <div className="bg-[#E66B27] p-2 rounded mb-2">
             <PackageCheck className="text-white" size={28} />
           </div>
-          <span className="font-black text-sm tracking-[0.2em] uppercase text-white">Normatel</span>
+          <span className="font-black text-sm tracking-[0.2em] uppercase text-white">Conferencia</span>
           <span className="text-[9px] text-slate-500 font-bold tracking-[0.3em] uppercase">Conferência</span>
         </div>
         

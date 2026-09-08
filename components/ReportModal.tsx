@@ -59,7 +59,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ batch, onClose }) => {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(14);
       doc.setTextColor(230, 107, 39); // Laranja Normatel
-      doc.text('NORMATEL HOME CENTER', 42, 18);
+      doc.text('CONFERENCIA HOME CENTER', 42, 18);
       
       doc.setFontSize(12);
       doc.setTextColor(40, 40, 40);
