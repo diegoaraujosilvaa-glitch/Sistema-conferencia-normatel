@@ -1,6 +1,6 @@
 
 import { db } from '../lib/firebase';
-import { collection, onSnapshot, query, orderBy, limit, serverTimestamp, doc, updateDoc, deleteDoc, setDoc } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, limit, serverTimestamp, doc, updateDoc, deleteDoc, setDoc, getDocs, where, Timestamp } from 'firebase/firestore';
 import { ConferenceBatch } from '../../types';
 
 // Buffer em memória para debounce de bips
@@ -167,6 +167,66 @@ export const listenConferenceBatches = (callback: (batches: ConferenceBatch[]) =
   }, (error) => {
     console.error("Erro ao escutar lotes:", error);
   });
+};
+
+/**
+ * Busca lotes históricos por período sob demanda (usado no Dashboard).
+ * Faz uma leitura pontual (getDocs) sem listener contínuo, preservando integralmente as cotas do Firebase.
+ */
+export const buscarLotesPorPeriodo = async (startDate: string, endDate: string): Promise<ConferenceBatch[]> => {
+  if (!startDate || !endDate) return [];
+
+  const batchesMap = new Map<string, ConferenceBatch>();
+
+  try {
+    // Margem segura de fuso horário (+- 2 dias para cobrir discrepâncias de horário local vs UTC)
+    const dStart = new Date(`${startDate}T00:00:00`);
+    dStart.setDate(dStart.getDate() - 2);
+    const safeStartStr = dStart.toISOString().split('T')[0];
+
+    const dEnd = new Date(`${endDate}T23:59:59`);
+    dEnd.setDate(dEnd.getDate() + 2);
+    const safeEndStr = dEnd.toISOString().split('T')[0] + 'T23:59:59.999Z';
+
+    // 1. Busca por startTime (presente em todos os lotes criados no sistema)
+    try {
+      const qStartTime = query(
+        collection(db, "conference_batches"),
+        where("startTime", ">=", safeStartStr),
+        where("startTime", "<=", safeEndStr),
+        limit(500)
+      );
+      const snapshot = await getDocs(qStartTime);
+      snapshot.docs.forEach(docSnap => {
+        batchesMap.set(docSnap.id, { id: docSnap.id, ...docSnap.data() } as ConferenceBatch);
+      });
+    } catch (errStartTime) {
+      console.warn("Aviso na busca por startTime:", errStartTime);
+    }
+
+    // 2. Busca complementar por createdAt para garantir lotes gravados com Timestamp do Firestore
+    try {
+      const startTimestamp = Timestamp.fromDate(dStart);
+      const endTimestamp = Timestamp.fromDate(dEnd);
+      const qCreatedAt = query(
+        collection(db, "conference_batches"),
+        where("createdAt", ">=", startTimestamp),
+        where("createdAt", "<=", endTimestamp),
+        limit(500)
+      );
+      const snapCreated = await getDocs(qCreatedAt);
+      snapCreated.docs.forEach(docSnap => {
+        batchesMap.set(docSnap.id, { id: docSnap.id, ...docSnap.data() } as ConferenceBatch);
+      });
+    } catch (errCreatedAt) {
+      // Ignora silenciosamente se o índice/campo não estiver presente
+    }
+
+    return Array.from(batchesMap.values());
+  } catch (error) {
+    console.error("Erro ao buscar lotes por período:", error);
+    return [];
+  }
 };
 
 /**

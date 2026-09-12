@@ -68,10 +68,27 @@ const App: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
+  const handleHistoricalBatchesLoaded = (historicalData: ConferenceBatch[]) => {
+    if (!historicalData || historicalData.length === 0) return;
+    setBatches(prev => {
+      const map = new Map<string, ConferenceBatch>();
+      prev.forEach(b => map.set(b.id, b));
+      historicalData.forEach(b => map.set(b.id, b));
+      return Array.from(map.values());
+    });
+  };
+
   // Sync Batches from Firestore (limitado aos mais recentes para economizar cota)
   useEffect(() => {
-    const unsubscribe = listenConferenceBatches((data) => {
-      setBatches(data);
+    const unsubscribe = listenConferenceBatches((recentData) => {
+      setBatches(prev => {
+        const map = new Map<string, ConferenceBatch>();
+        // Preserva lotes históricos consultados sob demanda pelo usuário
+        prev.forEach(b => map.set(b.id, b));
+        // Atualiza com os lotes mais recentes em tempo real
+        recentData.forEach(b => map.set(b.id, b));
+        return Array.from(map.values());
+      });
     });
     return () => unsubscribe();
   }, []);
@@ -305,7 +322,7 @@ const App: React.FC = () => {
     content = <BlindCheck batch={currentBatch} onUpdateBatch={handleUpdateBatchProgress} onFinish={finalizeConference} onCancel={() => { deletePausedBatch(currentBatch.id); setCurrentBatch(null); setActiveTab('upload'); }} onPause={handlePauseActive} />;
   } else {
     switch (activeTab) {
-      case 'dashboard': content = <Dashboard batches={batches} firestoreStats={stats} />; break;
+      case 'dashboard': content = <Dashboard batches={batches} firestoreStats={stats} onHistoricalBatchesLoaded={handleHistoricalBatchesLoaded} />; break;
       case 'upload': content = <XMLUpload currentUser={user!} branches={branches} onCreateBatch={handleCreateBatch} />; break;
       case 'available': content = <AvailableBatches batches={batches} onSelect={handleSelectBatch} onDelete={deletePausedBatch} userRole={user?.role} />; break;
       case 'active_monitor': content = <ActiveConferences activeBatches={activeBatches} />; break;
@@ -320,19 +337,33 @@ const App: React.FC = () => {
             <tbody className="divide-y divide-slate-50">
               {batches
                 .filter(b => !['IN_PROGRESS', 'PAUSED', 'READY', 'PENDING_SUPERVISOR'].includes(b.status))
-                .map(b => (
-                <tr key={b.id} className="hover:bg-slate-50/50 group transition-colors">
-                  <td className="px-6 py-4 text-xs font-bold text-slate-500">{new Date(b.endTime || b.startTime).toLocaleString('pt-BR')}</td>
-                  <td className="px-6 py-4 text-sm font-mono font-black text-[#E66B27] uppercase tracking-tighter">#{b.id}</td>
-                  <td className="px-6 py-4 text-sm font-bold text-slate-800">{b.conferenteName}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded-sm text-[10px] font-black tracking-widest uppercase ${b.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>{b.status}</span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <button onClick={() => setViewingReport(b)} className="bg-slate-100 text-slate-600 hover:bg-[#E66B27] hover:text-white px-4 py-2 rounded text-[10px] font-black uppercase tracking-widest transition-all">Relatório</button>
-                  </td>
-                </tr>
-              ))}
+                .map(b => {
+                  const dateStr = b.endTime || b.startTime || (b as any).createdAt;
+                  let displayDate = 'Data não registrada';
+                  if (dateStr) {
+                    if (typeof dateStr === 'string') {
+                      const d = new Date(dateStr);
+                      if (!isNaN(d.getTime())) displayDate = d.toLocaleString('pt-BR');
+                    } else if (dateStr.seconds) {
+                      displayDate = new Date(dateStr.seconds * 1000).toLocaleString('pt-BR');
+                    } else if (typeof dateStr.toDate === 'function') {
+                      displayDate = dateStr.toDate().toLocaleString('pt-BR');
+                    }
+                  }
+                  return (
+                    <tr key={b.id} className="hover:bg-slate-50/50 group transition-colors">
+                      <td className="px-6 py-4 text-xs font-bold text-slate-500">{displayDate}</td>
+                      <td className="px-6 py-4 text-sm font-mono font-black text-[#E66B27] uppercase tracking-tighter">#{b.id}</td>
+                      <td className="px-6 py-4 text-sm font-bold text-slate-800">{b.conferenteName}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-3 py-1 rounded-sm text-[10px] font-black tracking-widest uppercase ${b.status === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>{b.status}</span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <button onClick={() => setViewingReport(b)} className="bg-slate-100 text-slate-600 hover:bg-[#E66B27] hover:text-white px-4 py-2 rounded text-[10px] font-black uppercase tracking-widest transition-all">Relatório</button>
+                      </td>
+                    </tr>
+                  );
+                })}
               {batches.filter(b => !['IN_PROGRESS', 'PAUSED', 'READY', 'PENDING_SUPERVISOR'].includes(b.status)).length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-6 py-20 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest opacity-40">Nenhum manifesto concluído</td>
